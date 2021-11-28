@@ -1,0 +1,192 @@
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: white;
+    margin: 0;
+}
+
+.header {
+    background-color: white;
+}
+
+.container {
+    text-align: center;
+}
+
+.footer {
+    background-color: white;
+}
+
+.navigator {
+    position: relative;
+    margin: 10px 20px 0 10px;
+    height: 36px;
+}
+
+div.section {
+    border: dashed #ccc 1px;
+    border-radius: 8px;
+    margin: 10px;
+}
+
+div.form {
+    display: block;
+    text-align: left;
+    margin: 40px 20% 0 20%;
+}
+
+div.left {
+    position: absolute;
+    text-align: left;
+    margin-left: 0;
+    margin-top: 0;
+    /*top: 50%;*/
+    width: 100%;
+}
+
+div.right {
+    position: absolute;
+    text-align: right;
+    margin-right: 0;
+    margin-top: 0;
+    /*top: 50%;*/
+    width: 100%;
+}
+
+div.error {
+    display: block;
+    text-align: left;
+    color: red;
+}
+
+.form-group {
+    position: relative;
+    display: block;
+    max-width: 300px;
+    min-width: 60px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    position: relative;
+    display: block;
+/*    z-index: 2;
+    float: left;*/
+    width: 100%;
+    height: 36px;
+    border: #ccc solid 1px;
+    border-radius: 6px;
+    padding-left: 8px;
+}
+
+img.large_icon {
+    width: 80px;
+    height: 30px;
+    vertical-align: baseline;
+    object-fit: contain;
+}
+
+img.small_icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: baseline;
+    object-fit: contain;
+}
+
+button.default {
+    background: #fff;
+    text-align: center;
+/*    width: 80px;
+    height: 36px;*/
+    border: #ccc solid 1px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+button.emphases {
+    background: #fff;
+    text-align: center;
+    min-width: 80px;
+    height: 36px;
+    border: #ccc solid 1px;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+a.default {
+    text-decoration: none;
+}
+
+a.emphases {
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+div.movie_title {
+
+}
+
+div.user_input {
+    display: block;
+}
+
+form.user_input {
+	display: block;
+    max-width: 400px;
+    text-align: left;
+}
+
+label {
+	color: #333;
+}
+
+.input_text {
+    font-size: 16px;
+    height: 24px;
+}
+
+.thin-gray-border {
+    border-color: #bbb;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    min-width: 120;
+    max-width: 400;
+    height: 80;
+}
+
+.icon_image {
+    width: 20px;
+    border-radius: 50%;
+}
+
+
+* {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+/*.form-control {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition:border-color ease-in-out .15s, box-shadow ease-in-out .15s
+}*/
