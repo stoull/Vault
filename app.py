@@ -4,6 +4,7 @@ from markupsafe import escape
 from flask import make_response
 from flask import session
 
+# a if condition else b
 
 from form import LoginForm
 from authorization import AuthManager
@@ -26,7 +27,7 @@ def login_page():
 		login_form = LoginForm(request.form)
 		if login_form.validate_on_submit() and auth_manager.authorize(login_form):
 			resp = make_response(render_template('home.html', user_name=login_form.username))
-			resp.set_cookie(login_form.username, login_form.username)
+			resp.set_cookie("username", login_form.username)
 			return resp
 		else:
 			return render_template('login.html', error_password=True)

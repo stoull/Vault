@@ -2,10 +2,10 @@
 class AuthManager():
 	"""docstring for AuthManager"""
 	def __init__(self):
-		authenticated_user_list = []
+		self.authenticated_user_list = []
 
 	def isAuthenticated(self, username):
-		if username in authenticated_user_list:
+		if username in self.authenticated_user_list:
 			return True
 		else:
 			return False
@@ -13,12 +13,12 @@ class AuthManager():
 	def authorize(self, login_form):
 		# if login_form.username is exist: and password is right
 		if login_form.password == '123':
-			authenticated_user_list.append(username)
+			self.authenticated_user_list.append(login_form.username)
 			return True
 		else:
 			return False
 
 	def deAuthorize(self, username):
-		authenticated_user_list.remove(username)
+		self.authenticated_user_list.remove(login_form.username)
 
 		

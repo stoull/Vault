@@ -13,7 +13,7 @@ class LoginForm():
 		self.user = User(userInfo)
 
 	def validate_on_submit(self):
-		if len(self.username) > 6 and len(self.password) > 3:
+		if len(self.username) > 5 and len(self.password) > 2:
 			return True
 		else:
 			return False
