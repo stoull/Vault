@@ -3,6 +3,7 @@ from jinja2 import Environment, PackageLoader
 from markupsafe import escape
 from flask import make_response
 from flask import session
+from flask import Flask,redirect
 
 # a if condition else b
 
@@ -26,9 +27,17 @@ def login_page():
 	elif request.method == 'POST':
 		login_form = LoginForm(request.form)
 		if login_form.validate_on_submit() and auth_manager.authorize(login_form):
-			resp = make_response(render_template('home.html', user_name=login_form.username))
+			# 登录成功
+
+			# 重定向
+			resp = make_response(redirect(f"/user/{login_form.username}"))
 			resp.set_cookie("username", login_form.username)
 			return resp
+
+			# 返回静态页,url不变
+			# resp = make_response(render_template('home.html', user_name=login_form.username))
+			# resp.set_cookie("username", login_form.username)
+			# return resp
 		else:
 			return render_template('login.html', error_password=True)
 	else:
@@ -41,7 +50,11 @@ def login_page():
 def index_page():
 	# 静态页
 	# return app.send_static_file('login.html')
-	return render_template('index.html')
+	cookied_username = request.cookies.get('username')
+	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
+		return render_template('index.html', user_name=escape(cookied_username))
+	else:
+		return render_template('index.html')
 
 	# template = env.get_template('index.html')
 	# return template.render()

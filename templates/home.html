@@ -1,27 +1,11 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css') }}">
-	<title>{{user_name}}'s Home</title>
-</head>
-<body>
-	<div class="container">
-		<div class="navigator">
-			<div class="left">
-			<a class="default" href="index">
-				<img class="large_icon" src="{{ url_for('static',filename='images/movie_home.png') }}" alt="movies">
-			</a>
-			</div>
-			<div class="right">
-				<a class="emphases" href="login">登录</a>
-			</div>
-		</div>
-		<div class="section">
-			Welcom {{ user_name }}
-		</div>
-	</div>
+{% extends "base.html" %}
+{% block title %} {{ user_name }} Home {% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+	<div class="section">
+		Welcom {{ user_name }}'s awesome home page
+	</div>
+{% endblock %}
