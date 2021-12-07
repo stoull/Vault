@@ -61,7 +61,11 @@ def index_page():
 
 @app.route("/user/<username>")
 def home_page(username):
-	return render_template('home.html', user_name=escape(username))
+	authResult = checkUserAuthentication(username)
+	if authResult == True:
+		return render_template('home.html', user_name=escape(username))
+	else:
+		return authResult
 
 	# template = env.get_template('home.html')
 	# return template.render(user_name=username)
@@ -79,3 +83,17 @@ def user_login_action():
 	# template = env.get_template('index.html')
 
 	# return template.render(user_name=text)
+
+
+
+# 如已授权则返回true, 未授权则返返回登录界面的重定向
+def checkUserAuthentication(username):
+	if auth_manager.isAuthenticated(username):
+		return True
+	else:
+		# 重定向到登录界面
+		resp = make_response(redirect(f"/login"))
+		return resp
+
+
+
