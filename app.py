@@ -7,8 +7,8 @@ from flask import Flask,redirect
 
 # a if condition else b
 
-from form import LoginForm
-from authorization import AuthManager
+from models.form import LoginForm
+from models.authorization import AuthManager
 
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
