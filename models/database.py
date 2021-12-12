@@ -24,6 +24,7 @@ class DBManager(object):
 		if self.isSQLite3File(db_file) == False:
 			con = sqlite3.connect(db_file)
 			cur = con.cursor()
+			# create user table
 			cur.execute('''CREATE TABLE user(
 							id INTEGER PRIMARY KEY,
 			 				name VARCHAR(20),
@@ -32,7 +33,29 @@ class DBManager(object):
 			 				gender INT DEFAULT 0,
 			 				phoneNumber VARCHAR(20),
 			 				introduction TEXT,
-			 				createDate TIMESTAMP NOT NULL)''')
+			 				createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+			
+			# create movie table
+			cur.execute('''CREATE TABLE movie(
+							id INTEGER PRIMARY KEY,
+			 				name VARCHAR(40),
+			 				director VARCHAR(20), 
+			 				scenarist VARCHAR(20),
+			 				actors VARCHAR(100),
+			 				types VARCHAR(100),
+			 				country VARCHAR(20),
+			 				releaseDate DATETIME,
+			 				length REAL,
+			 				otherNames VARCHAR(100),
+			 				score INT,
+			 				synopsis TEXT,
+			 				filePath VARCHAR(40),
+			 				fileUrl VARCHAR(40),
+			 				posterUrl VARCHAR(40),
+			 				iconUrl VARCHAR(40),
+			 				createDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+			 				lastWatchDate DATETIME,
+			 				lastWatchUser VARCHAR(40))''')
 			con.commit()
 			cur.close()
 			self.db_file = db_file
@@ -42,7 +65,7 @@ class DBManager(object):
 		cur = self.connect.cursor()
 		params = [int(time.time())]
 		cur.execute("insert into user values(NULL, 'Hut', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay', ?)", params)
-		cur.execute("insert into user(name, alias, email, gender, phoneNumber, introduction, createDate) values('Kevin', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay', 1212433)")
+		cur.execute("insert into user(name, alias, email, gender, phoneNumber, introduction) values('Kevin', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay')")
 
 	def closeDataBase(self):
 		self.connect.commit()
