@@ -45,6 +45,16 @@ def login_page():
 	# template = env.get_template('login.html')
 	# return template.render()
 
+@app.route("/logout", methods=['GET'])
+def logout():
+	cookied_username = request.cookies.get('username')
+	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
+		resp = make_response(render_template('login.html', error_password=False))
+		resp.set_cookie("username", "", expires=0)
+		return resp
+	else:
+		return render_template('login.html', error_password=False)
+
 @app.route("/")
 @app.route("/index")
 def index_page():
@@ -96,4 +106,18 @@ def checkUserAuthentication(username):
 		return resp
 
 
+
+@app.route("/backstage", methods=['GET'])
+def backstage():
+	cookied_username = request.cookies.get('username')
+	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
+		return render_template('backstage.html', user_name=escape(cookied_username))
+	else:
+		return render_template('backstage.html')
+
+# API with JSON
+from flask import jsonify
+@app.route("/movie.json/", methods=['GET'])
+def get_movies():
+	return jsonify(name="我的我家", lenght=10, area="中国")
 
