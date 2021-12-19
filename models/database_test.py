@@ -1,29 +1,76 @@
-import os, sqlite3
+import sqlite3, os, hashlib, time, sys
 
-db_file = os.path.join(os.path.dirname(__file__), 'test.db')
-if os.path.isfile(db_file):
-	os.remove(db_file)
+# from flask_sqlalchemy import SQLAlchemy, Model
 
-#初始数据
-con = sqlite3.connect(db_file)
-cursor = con.cursor()
-cursor.execute('''create table user(id VARCHAR(20) primary key, name VARCHAR(20), score INT)''')
-cursor.execute("insert into user values('A-001', 'Adam', 95)")
-cursor.execute("insert into user values('A-002', 'Bart', 62)")
-cursor.execute("insert into user values('A-023', 'Kevin', 78)")
+class DBManager(object):
+	"""Sqlite databse manager"""
+	def __init__(self):
+		self.db_file = "vault.db"
+		self.connect = sqlite3.connect(self.db_file)
+		self.initialDataBase()
 
-cursor.close()
-con.commit()
-con.close()
+	def isSQLite3File(self, filePath):
+		if os.path.isfile(filePath):
+			if os.path.getsize(filePath) > 100:
+				with open(filePath, 'r', encoding = "ISO-8859-1") as f:
+					header = f.read(100)
+					if header.startswith('SQLite format 3'):
+						# SQlite3 database has been detected
+						return True
+		return False
 
-def get_score_in(low, high):
-	con = sqlite3.connect(db_file)
-	cur = con.cursor()
-	cur.execute("SELECT name, score FROM user WHERE score>? AND score<? ORDER BY score DESC", (low, high))
-	result = cur.fetchall()
-	cur.close()
-	con.close()
-	return result
+	def initialDataBase(self):
+		db_file = os.path.join(os.path.dirname(__file__), 'vault.db')
+		if self.isSQLite3File(db_file) == False:
+			con = sqlite3.connect(db_file)
+			cur = con.cursor()
+			# create user table
+			cur.execute('''CREATE TABLE user(
+							id INTEGER PRIMARY KEY,
+			 				name VARCHAR(20),
+			 				alias VARCHAR(20), 
+			 				email VARCHAR(20),
+			 				gender INT DEFAULT 0,
+			 				phoneNumber VARCHAR(20),
+			 				introduction TEXT,
+			 				createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+			
+			#cureate director table
+			cur.execute('''CREATE TABLE director(
+						id INTEGER PRIMARY KEY,
+						name VARCHAR(40),
+						country VARCHAR(20)
+						)''')
 
-for name in get_score_in(60, 90):
-	print(name)
+			# create movie table
+			cur.execute('''CREATE TABLE movie(
+							id INTEGER PRIMARY KEY,
+			 				name VARCHAR(40),
+			 				directorId INTEGER,
+			 				FOREIGN KEY (directorId) REFERENCES director (id)
+			 				)''')
+			con.commit()
+			cur.close()
+			self.db_file = db_file
+			self.connect = con
+
+	def insertUser(self):
+		cur = self.connect.cursor()
+		params = [int(time.time())]
+		# insert a user
+		cur.execute("insert into user(name, alias, email, gender, phoneNumber, introduction) values('Kevin', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay')")
+		# insert directors
+
+
+	def closeDataBase(self):
+		self.connect.commit()
+		self.connect.close()
+
+
+if __name__=='__main__':
+	db = DBManager()
+	db.insertUser()
+	db.closeDataBase()
+	
+
+
