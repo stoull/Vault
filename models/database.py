@@ -7,7 +7,6 @@ class DBManager(object):
 	def __init__(self):
 		self.db_file = "vault.db"
 		self.initialDataBase()
-		self.connect = sqlite3.connect(self.db_file)
 
 	# 判断一个文件是否是SQLite3文件
 	def isSQLite3File(self, filePath):
@@ -141,30 +140,32 @@ class DBManager(object):
 
 			con.commit()
 			cur.close()
-			self.db_file = db_file
-			self.connect = con
 
 	# 增加一些测试的用户数据
 	def insertUser(self):
-		cur = self.connect.cursor()
+		con = sqlite3.connect(self.db_file)
+		cur = con.cursor()
 		params = [int(time.time())]
 		cur.execute("insert into user values(NULL, 'Hut', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay', ?)", params)
 		cur.execute("insert into user(name, alias, email, gender, phoneNumber, introduction) values('Kevin', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay')")
-
+		con.commit()
+		cur.close()
 
 	def closeDataBase(self):
 		self.connect.commit()
 		self.connect.close()
 
 	def getAllTableNames(self):
-		newConnect = sqlite3.connect(self.db_file)
-		cur = newConnect.cursor()
+		con = sqlite3.connect(self.db_file)
+		cur = con.cursor()
 		cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
 		tables = []
 		for tableName in cur.fetchall():
 			tables.append(tableName[0])
-		newConnect.close()
-		return tables
+			return ["in here"]
+		return [tables]
+		con.commit()
+		cur.close()
 
 
 

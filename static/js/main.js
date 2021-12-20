@@ -17,8 +17,9 @@ function httpGetMovieJsonData()
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-        	console.log(xmlHttp.responseText);
-            drawRow(xmlHttp.responseText)
+            var result = JSON.parse(xmlHttp.response);
+        	console.log(result);
+            drawRow(result);
         // else
             // alert("错误：" + xmlHttp.readyState)
     }
@@ -26,12 +27,13 @@ function httpGetMovieJsonData()
     xmlHttp.send(null);
 }
 
-function drawRow(rowData) {
-    var row = $("<tr />")
-    $("#Database_tables").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
-    row.append($("<td>" + rowData.id + "</td>"));
-    row.append($("<td>" + rowData.Name + "</td>"));
-    row.append($("<td>" + rowData.Phone1 + "</td>"));
+function drawRow(nameArray) {
+    for(var i = 0; i < nameArray.length; i++) {
+        var row = $("<tr />")
+        $("#Database_tables").append(row); 
+        var obj = nameArray[i];
+        row.append($("<td>" + obj + "</td>"));
+    }
 }
 
 // function httpGetAsync(theUrl, callback)
