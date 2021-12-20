@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, Response, render_template
 from jinja2 import Environment, PackageLoader
 from markupsafe import escape
 from flask import make_response
@@ -9,11 +9,13 @@ from flask import Flask,redirect
 
 from models.form import LoginForm
 from models.authorization import AuthManager
+from models.database import DBManager
 
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
 env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
+data_manager = DBManager()
 
 @app.route("/login", methods=['GET', 'POST'])
 def login_page():
@@ -119,5 +121,9 @@ def backstage():
 from flask import jsonify
 @app.route("/movie.json/", methods=['GET'])
 def get_movies():
-	return jsonify(name="我的我家", lenght=10, area="中国")
+	newDataManager = DBManager()
+	talbe_names = newDataManager.getAllTableNames()
+	return jsonify(talbe_names)
+	# return Response(json.dumps(talbe_names), mimetype='application/json')
+
 

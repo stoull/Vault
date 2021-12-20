@@ -6,8 +6,8 @@ class DBManager(object):
 	"""Sqlite databse manager"""
 	def __init__(self):
 		self.db_file = "vault.db"
-		self.connect = sqlite3.connect(self.db_file)
 		self.initialDataBase()
+		self.connect = sqlite3.connect(self.db_file)
 
 	# 判断一个文件是否是SQLite3文件
 	def isSQLite3File(self, filePath):
@@ -152,18 +152,28 @@ class DBManager(object):
 		cur.execute("insert into user(name, alias, email, gender, phoneNumber, introduction) values('Kevin', 'Stoull', 'chang@12.com', 1, '1214555', 'Buttflay')")
 
 
-	def insertUser(self, user):
-		pass
-
 	def closeDataBase(self):
 		self.connect.commit()
 		self.connect.close()
 
+	def getAllTableNames(self):
+		newConnect = sqlite3.connect(self.db_file)
+		cur = newConnect.cursor()
+		cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = []
+		for tableName in cur.fetchall():
+			tables.append(tableName[0])
+		newConnect.close()
+		return tables
+
+
 
 if __name__=='__main__':
 	db = DBManager()
-	db.insertUser()
-	db.closeDataBase()
+	tables = db.getAllTableNames()
+	print(f"is reandTAlbes: {tables}")
+	# db.insertUser()
+	# db.closeDataBase()
 	
 
 
