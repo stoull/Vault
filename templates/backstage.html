@@ -9,13 +9,8 @@
 	<button type="button" id="get_movie_json" class="emphases" onclick="httpGetMovieJsonData();">获取json Data</button>
 	<div class="section">
 		<div class="column">
-			<div class="side_bar">
+			<div class="side_bar" id="side_bar">
 				<h2>类别</h2>
-				<table class="" id="Database_tables">
-<!-- 					<tr><td>director</td></tr>
-					<tr><td>actor</td></tr>
-					<tr><td>scenarist</td></tr> -->
-				</table>
 			</div>
 			<div class="right_content">
 				<h2>详情</h2>
@@ -35,6 +30,7 @@
 			</div>
 		</div>
 	</div>
-	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}">
+		httpGetMovieJsonData();
+	</script>
 {% endblock %}

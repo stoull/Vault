@@ -24,7 +24,7 @@ body {
 }
 
 .footer {
-    position: absolute;
+    position: relative;
     bottom: 4%;
     width: 100%;
     background-color: white;
@@ -201,6 +201,18 @@ label {
 .icon_image {
     width: 20px;
     border-radius: 50%;
+}
+
+table.side_index {
+    width: 100%;
+}
+
+tr.side_index {
+    width: 100%;
+}
+
+td.side_index {
+    width: 100%;
 }
 
 
