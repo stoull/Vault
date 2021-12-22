@@ -88,7 +88,6 @@ div.side_bar {
     /*display: inline;*/
     /*margin-right: 70%;*/
     width: 20%;
-    background-color: red;
 }
 
 div.right_content {
@@ -97,7 +96,6 @@ div.right_content {
     padding-left: 10px;
     text-align: left;
     width: 80%;
-    background-color: green;
 }
 
 .form-group {
@@ -215,6 +213,18 @@ td.side_index {
     width: 100%;
 }
 
+table.data_content {
+
+}
+
+tr.data_content {
+
+}
+
+td.data_content {
+    max-width: 280px;
+    min-width: 80px;
+}
 
 * {
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */

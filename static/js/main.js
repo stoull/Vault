@@ -9,25 +9,65 @@ function updateHeading() {
 	document.getElementById('heading').innerHTML = "Heading changed with JS";
 }
 
-// fetch('http://example.com/movies.json')
-//   .then(response => response.json())
-//   .then(data => console.log(data));
-
+Vault.jsonHttp = new XMLHttpRequest();
 
 function httpGetSideTableJsonDataAndUpdateUI()
 {
-	const movie_json_url = "movie.json"
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            let resultJson = JSON.parse(xmlHttp.response);
+	const table_json_url = "/json/tables";
+    // let jsonHttp = new XMLHttpRequest();
+    Vault.jsonHttp.onload = function() { 
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
             createSideTable(resultJson);
         } else {
-            // alert("错误：" + xmlHttp.readyState)
+            // alert("错误：" + jsonHttp.readyState)
         }
     }
-    xmlHttp.open("GET", movie_json_url, true); // true for asynchronous 
-    xmlHttp.send(null);
+    Vault.jsonHttp.open("GET", table_json_url, true); // true for asynchronous 
+    Vault.jsonHttp.send(null);
+}
+
+// 获取对应的表数据，并更新显示
+function httpGetTableContentDataAndUpdateUI(tablesName) {
+    let content_url = "/json/content".concat("/", tablesName)
+    Vault.jsonHttp.open('GET', content_url, true) // true 表示异步
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
+            // console.log(resultJson)
+            createContentTable(resultJson)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
+
+// 创建后台编辑页内容视图
+function createContentTable(jsonData) {
+    let contentArea = document.getElementById('content_area');
+    contentArea.innerHTML = "<h2>详情</h2>"
+    let tbl = document.createElement('table');
+    tbl.setAttribute('id','content_table');
+    tbl.setAttribute('class','data_content');
+    let tdby = document.createElement('tbody');
+    for (let i=0; i < jsonData.length; i++) {
+        let row = jsonData[i];
+        let tr = document.createElement('tr');
+        tr.setAttribute('class', 'data_content');
+        for (let j=0; j<row.length; j++) {
+            let td = document.createElement('td');
+            td.setAttribute('class', 'data_content');
+            td.appendChild(document.createTextNode(row[j]));
+            tr.appendChild(td);
+        }
+        tdby.appendChild(tr);
+    }
+    tbl.appendChild(tdby);
+    contentArea.appendChild(tbl);
 }
 
 // 创建后台编辑页sider bar table
@@ -44,21 +84,29 @@ function createSideTable(nameArray) {
         tr.onclick = function() {
             sideRowDidClick(this);
         }
-        // for (let j = 0; j < nameArray.length; j++) {
+        // for (let j = 0; j < 2; j++) {
         //     let td = document.createElement('td');
-        //     td.appendChild(document.createTextNode(nameArray[j]))
+        //     td.appendChild(document.createTextNode("I'm td"))
         //     td.setAttribute('class', 'side_index')
         //     tr.appendChild(td)
         // }
         tbdy.appendChild(tr);
     }
     tbl.appendChild(tbdy);
-    side_bar.appendChild(tbl)
+    side_bar.appendChild(tbl);
 }
 
 function sideRowDidClick(row) {
     let text = row.innerText || row.textContent;
     console.log(text)
+    httpGetTableContentDataAndUpdateUI(text)
+}
+
+
+
+
+// 显示对应的编辑页
+function showEditWithContent(tableName) {
 }
 
 
