@@ -1,3 +1,6 @@
+/// 将其它所有的全局变量都绑定到这个唯一的全局变量，而非默认的window上
+var Vault = {}
+
 function showAlert(message) {
 	alert(message);
 }
@@ -11,17 +14,17 @@ function updateHeading() {
 //   .then(data => console.log(data));
 
 
-function httpGetMovieJsonData()
+function httpGetSideTableJsonDataAndUpdateUI()
 {
-	let movie_json_url = "movie.json"
-    var xmlHttp = new XMLHttpRequest();
+	const movie_json_url = "movie.json"
+    let xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            var result = JSON.parse(xmlHttp.response);
-        	console.log(result);
-            createSideTable(result);
-        // else
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            let resultJson = JSON.parse(xmlHttp.response);
+            createSideTable(resultJson);
+        } else {
             // alert("错误：" + xmlHttp.readyState)
+        }
     }
     xmlHttp.open("GET", movie_json_url, true); // true for asynchronous 
     xmlHttp.send(null);
@@ -29,20 +32,20 @@ function httpGetMovieJsonData()
 
 // 创建后台编辑页sider bar table
 function createSideTable(nameArray) {
-    var side_bar = document.getElementById('side_bar');
-    var tbl = document.createElement('table');
+    let side_bar = document.getElementById('side_bar');
+    let tbl = document.createElement('table');
     tbl.setAttribute('id', 'Database_tables');
     tbl.setAttribute('class', 'side_index');
-    var tbdy = document.createElement('tbody');
-    for (var i = 0; i < nameArray.length; i++) {
-        var tr = document.createElement('tr');
+    let tbdy = document.createElement('tbody');
+    for (let i = 0; i < nameArray.length; i++) {
+        let tr = document.createElement('tr');
         tr.setAttribute('class', 'side_index')
         tr.appendChild(document.createTextNode(nameArray[i]))
         tr.onclick = function() {
             sideRowDidClick(this);
         }
-        // for (var j = 0; j < nameArray.length; j++) {
-        //     var td = document.createElement('td');
+        // for (let j = 0; j < nameArray.length; j++) {
+        //     let td = document.createElement('td');
         //     td.appendChild(document.createTextNode(nameArray[j]))
         //     td.setAttribute('class', 'side_index')
         //     tr.appendChild(td)
@@ -54,7 +57,7 @@ function createSideTable(nameArray) {
 }
 
 function sideRowDidClick(row) {
-    var text = row.innerText || row.textContent;
+    let text = row.innerText || row.textContent;
     console.log(text)
 }
 

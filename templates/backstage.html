@@ -6,7 +6,7 @@
 
 {% block content %}
 	<h1>Welcom {{ user_name }}'s backstage</h1>
-	<button type="button" id="get_movie_json" class="emphases" onclick="httpGetMovieJsonData();">获取json Data</button>
+	<button type="button" id="get_movie_json" class="emphases" onclick="httpGetSideTableJsonDataAndUpdateUI();">获取json Data</button>
 	<div class="section">
 		<div class="column">
 			<div class="side_bar" id="side_bar">
@@ -30,7 +30,10 @@
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}">
-		httpGetMovieJsonData();
+	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			httpGetSideTableJsonDataAndUpdateUI();
+		});
 	</script>
 {% endblock %}
