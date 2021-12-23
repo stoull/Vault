@@ -40,7 +40,7 @@ class DBManager(object):
 			cur.execute('''CREATE TABLE movie(
 				id INTEGER PRIMARY KEY,
  				name VARCHAR(40) NOT NULL,
- 				releaseDate DATETIME,
+ 				releaseDate DATE,
  				language VARCHAR(20),
  				length REAL,
  				otherNames VARCHAR(100),
@@ -59,7 +59,8 @@ class DBManager(object):
 				name_cn VARCHAR(40) NOT NULL,
 				name_en VARCHAR(40),
 				gender BOOLEAN,
-				birthday DATETIME,
+				birthday DATE,
+				leaveday DATE,
 				birthplace VARCHAR(20)
 				)''')
 
@@ -68,7 +69,8 @@ class DBManager(object):
 				name_cn VARCHAR(40) NOT NULL,
 				name_en VARCHAR(40),
 				gender BOOLEAN,
-				birthday DATETIME,
+				birthday DATE,
+				leaveday DATE,
 				birthplace VARCHAR(20)
 				)''')
 
@@ -78,6 +80,7 @@ class DBManager(object):
 				name_en VARCHAR(40),
 				gender BOOLEAN,
 				birthday DATETIME,
+				leaveday DATE,
 				birthplace VARCHAR(20)
 				)''')
 
@@ -172,7 +175,6 @@ class DBManager(object):
 if __name__=='__main__':
 	db = DBManager()
 	tables = db.getAllTableNames()
-	print(f"is reandTAlbes: {tables}")
 	# db.insertUser()
 	# db.closeDataBase()
 	

@@ -28,14 +28,14 @@ function httpGetSideTableJsonDataAndUpdateUI()
 }
 
 // 获取对应的表数据，并更新显示
-function httpGetTableContentDataAndUpdateUI(tablesName) {
-    let content_url = "/json/content".concat("/", tablesName)
+function httpGetTableContentDataAndUpdateUI(tableName) {
+    let content_url = "/json/content".concat("/", tableName)
     Vault.jsonHttp.open('GET', content_url, true) // true 表示异步
     Vault.jsonHttp.onload = function (e) {
         if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
             let resultJson = JSON.parse(Vault.jsonHttp.response);
             // console.log(resultJson)
-            createContentTable(resultJson)
+            createContentTable(resultJson, tableName)
         } else {
             console.error(Vault.jsonHttp.statusText);
         }
@@ -47,7 +47,7 @@ function httpGetTableContentDataAndUpdateUI(tablesName) {
 }
 
 // 创建后台编辑页内容视图
-function createContentTable(jsonData) {
+function createContentTable(jsonData, tableName) {
     let contentArea = document.getElementById('content_area');
     contentArea.innerHTML = "<h2>详情</h2>"
     let tbl = document.createElement('table');
@@ -61,7 +61,16 @@ function createContentTable(jsonData) {
         for (let j=0; j<row.length; j++) {
             let td = document.createElement('td');
             td.setAttribute('class', 'data_content');
-            td.appendChild(document.createTextNode(row[j]));
+            console.log(tableName);
+            if (tableName == "movie") {
+                let divCon = document.createElement('div');
+                divCon.setAttribute('style','height:60px; overflow:hidden');
+                divCon.appendChild(document.createTextNode(row[j]));
+                td.appendChild(divCon);
+            } else {
+                td.appendChild(document.createTextNode(row[j]));
+            }
+            
             tr.appendChild(td);
         }
         tdby.appendChild(tr);
