@@ -1,14 +1,6 @@
 /// 将其它所有的全局变量都绑定到这个唯一的全局变量，而非默认的window上
 var Vault = {}
 
-function showAlert(message) {
-	alert(message);
-}
-
-function updateHeading() {
-	document.getElementById('heading').innerHTML = "Heading changed with JS";
-}
-
 Vault.jsonHttp = new XMLHttpRequest();
 
 function httpGetSideTableJsonDataAndUpdateUI()
@@ -36,6 +28,7 @@ function httpGetTableContentDataAndUpdateUI(tableName) {
             let resultJson = JSON.parse(Vault.jsonHttp.response);
             // console.log(resultJson)
             createContentTable(resultJson, tableName)
+            updateSideTable(tableName)
         } else {
             console.error(Vault.jsonHttp.statusText);
         }
@@ -61,15 +54,11 @@ function createContentTable(jsonData, tableName) {
         for (let j=0; j<row.length; j++) {
             let td = document.createElement('td');
             td.setAttribute('class', 'data_content');
-            console.log(tableName);
-            if (tableName == "movie") {
-                let divCon = document.createElement('div');
-                divCon.setAttribute('style','height:60px; overflow:hidden');
-                divCon.appendChild(document.createTextNode(row[j]));
-                td.appendChild(divCon);
-            } else {
-                td.appendChild(document.createTextNode(row[j]));
-            }
+            let divCon = document.createElement('div');
+            divCon.setAttribute('style','display: table-cell; vertical-align: middle;');
+            divCon.appendChild(document.createTextNode(row[j]));
+            td.appendChild(divCon);
+            // td.appendChild(document.createTextNode(row[j]));
             
             tr.appendChild(td);
         }
@@ -86,38 +75,61 @@ function createSideTable(nameArray) {
     tbl.setAttribute('id', 'Database_tables');
     tbl.setAttribute('class', 'side_index');
     let tbdy = document.createElement('tbody');
+    tbdy.setAttribute('id', 'Database_tables_body');
     for (let i = 0; i < nameArray.length; i++) {
         let tr = document.createElement('tr');
-        tr.setAttribute('class', 'side_index')
+        tr.setAttribute('class', 'side_tr_wapper')
         tr.appendChild(document.createTextNode(nameArray[i]))
         tr.onclick = function() {
             sideRowDidClick(this);
         }
-        // for (let j = 0; j < 2; j++) {
-        //     let td = document.createElement('td');
-        //     td.appendChild(document.createTextNode("I'm td"))
-        //     td.setAttribute('class', 'side_index')
-        //     tr.appendChild(td)
-        // }
+        let eidtButton = document.createElement('Button')
+        let image = document.createElement('img')
+        image.src = "/static/images/edit_small_blue.png"
+        eidtButton.setAttribute('class','edit')
+        eidtButton.appendChild(image)
+        eidtButton.onclick = function() {
+            sideRowDidClickEdit(this)
+        }
+        tr.appendChild(eidtButton)
         tbdy.appendChild(tr);
     }
     tbl.appendChild(tbdy);
     side_bar.appendChild(tbl);
 }
 
+function updateSideTable(tableName) {
+    let tableNames = new Array()
+    let tbdy = document.getElementById('Database_tables_body');
+    for (let i=0; i<tbdy.children.length; i++) {
+        let trObj = tbdy.children[i];
+        let innerText = trObj.innerText;
+        trObj.setAttribute('class', 'side_tr_wapper');
+        if (innerText == tableName) {
+            trObj.setAttribute('class', 'side_tr_wapper_selected');
+        }
+        // tableNames.push(innerText);
+    }
+}
+
+
 function sideRowDidClick(row) {
     let text = row.innerText || row.textContent;
-    console.log(text)
+    // console.log(text)
     httpGetTableContentDataAndUpdateUI(text)
 }
 
-
-
-
 // 显示对应的编辑页
-function showEditWithContent(tableName) {
+function sideRowDidClickEdit(row) {
+    let text = ""
+    try {
+        text = row.closest('.side_tr_wapper').innerText
+    } catch (error){
+        text = row.closest('.side_tr_wapper_selected').innerText
+    }
+    // console.log(text)
+    alert("改功能暂未开放！您尝试编辑： " + text);
 }
-
 
 
 

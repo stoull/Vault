@@ -87,7 +87,7 @@ div.column {
 div.side_bar {
     /*display: inline;*/
     /*margin-right: 70%;*/
-    width: 20%;
+    width: 16%;
 }
 
 div.right_content {
@@ -95,7 +95,7 @@ div.right_content {
     /*margin-left: 30%;*/
     padding-left: 10px;
     text-align: left;
-    width: 80%;
+    width: 84%;
 }
 
 .form-group {
@@ -153,6 +153,14 @@ button.emphases {
     font-weight: bold;
 }
 
+button.edit {
+    background: #eee;
+/*    height: 12px;
+    width: 12px;*/
+    display: none;
+    border: none;
+}
+
 a.default {
     text-decoration: none;
 }
@@ -203,25 +211,56 @@ label {
 
 table.side_index {
     width: 100%;
+    border: solid #ddd 1px;
+    border-radius: 4px;
 }
 
-tr.side_index {
+tr.side_tr_wapper {
     width: 100%;
+    height: 30px;
+    font-size: 20px;
+    background-color: white;
+    /*font-family:Sans-serif;*/
 }
+
+tr.side_tr_wapper_selected {
+    width: 100%;
+    height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #ddd;
+}
+
 
 td.side_index {
     width: 100%;
 }
 
+tr.side_tr_wapper:hover button.edit, tr.side_tr_wapper_selected:hover button.edit {
+    display: inline-block;
+}
+
 table.data_content {
+    width: 100%;
+    table-layout: auto;
+    border: solid #ddd 1px;
+    border-radius: 4px;
 }
 
 tr.data_content {
+    outline: solid #eee 1px;
 }
 
 td.data_content {
-    max-width: 280px;
-    min-width: 80px;
+    /*border: solid #ccc 1px;
+    border-radius: 0px;
+    text-align: center;
+    vertical-align: middle*/;
+}
+
+tr:hover{
+    background-color: #eee;
+    cursor: default;
 }
 
 * {
