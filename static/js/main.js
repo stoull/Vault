@@ -3,9 +3,31 @@ var Vault = {}
 
 Vault.jsonHttp = new XMLHttpRequest();
 
+
+
+// 获取最新添加的电影数据
+function httpGetTheLastUpdateAndUpdateUI() {
+    let lastUpdateUrl = "/json/content/movie";
+    Vault.jsonHttp.open('GET', lastUpdateUrl);
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let jsonResult = JSON.parse(Vault.jsonHttp.response);
+            createTheLastNews(jsonResult);
+            // console.log("httpGetTheLastUpdateAndUpdateUI " + jsonResult)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
+
+// 获取数据库tables
 function httpGetSideTableJsonDataAndUpdateUI()
 {
-	const table_json_url = "/json/tables";
+    const table_json_url = "/json/tables";
     // let jsonHttp = new XMLHttpRequest();
     Vault.jsonHttp.onload = function() { 
         if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
@@ -38,6 +60,43 @@ function httpGetTableContentDataAndUpdateUI(tableName) {
     }
     Vault.jsonHttp.send(null);
 }
+
+
+// ==========  首页 ==========
+function createTheLastNews(movieList) {
+    let contentTbl = document.getElementById('last_update_table');
+    for (let i=0; i < movieList.length; i++) {
+        let tr = document.createElement('tr');
+        for (let j=0; j<3; j++) {
+            let td = document.createElement('td');
+            td.setAttribute('class', 'data_content');
+            let valueIndex = j;
+            if (j == 0) {
+                valueIndex = 1
+            } else if (j == 1) {
+                valueIndex = 7
+                td.setAttribute('style', 'text-align: left;')
+            } else {
+                valueIndex = 6
+            }
+            td.appendChild(document.createTextNode(movieList[i][valueIndex]))
+            tr.appendChild(td)
+            tr.onclick = function() {
+                showMoviePage(this)
+            }
+        }
+        contentTbl.appendChild(tr)
+    }
+}
+
+function showMoviePage(movieTr) {
+    let movieName = movieTr.children[0].innerText
+    console.log("Show the detail of movie name: " + movieName)
+}
+
+
+
+// ==========  后台编辑页 ==========
 
 // 创建后台编辑页内容视图
 function createContentTable(jsonData, tableName) {

@@ -252,6 +252,7 @@ tr.data_content {
 }
 
 td.data_content {
+    min-width: 120px;
     /*border: solid #ccc 1px;
     border-radius: 0px;
     text-align: center;
