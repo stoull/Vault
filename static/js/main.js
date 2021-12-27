@@ -4,6 +4,13 @@ var Vault = {}
 Vault.jsonHttp = new XMLHttpRequest();
 
 
+class Movie {
+    constructor(json) {
+        id = json['id']
+        
+    }
+}
+
 
 // 获取最新添加的电影数据
 function httpGetTheLastUpdateAndUpdateUI() {
