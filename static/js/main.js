@@ -67,7 +67,7 @@ function createTheLastNews(movieList) {
     let contentTbl = document.getElementById('last_update_table');
     for (let i=0; i < movieList.length; i++) {
         let tr = document.createElement('tr');
-        for (let j=0; j<3; j++) {
+        for (let j=0; j<4; j++) {
             let td = document.createElement('td');
             td.setAttribute('class', 'data_content');
             let valueIndex = j;
@@ -76,8 +76,10 @@ function createTheLastNews(movieList) {
             } else if (j == 1) {
                 valueIndex = 7
                 td.setAttribute('style', 'text-align: left;')
-            } else {
+            } else if (j == 2) {
                 valueIndex = 6
+            } else {
+                valueIndex = 12
             }
             td.appendChild(document.createTextNode(movieList[i][valueIndex]))
             tr.appendChild(td)

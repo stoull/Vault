@@ -64,7 +64,7 @@ div.left {
     width: 100%;
 }
 
-div.right {
+div.user_info {
     position: absolute;
     text-align: right;
     margin-right: 0;
