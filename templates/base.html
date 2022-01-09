@@ -13,7 +13,7 @@
 	<div class="container">
 		<div class="navigator">
 			<div class="left">
-			<a class="default" href="../index">
+			<a class="default" href="/index">
 				<img class="large_icon" src="{{ url_for('static',filename='images/movie_home.png') }}" alt="movies">
 			</a>
 			</div>
@@ -21,7 +21,7 @@
 				{% if user_name %}
 				<a class="emphases" href="/user/{{ user_name }}">{{ user_name }}</a>
 				{% else %}
-				<a class="emphases" href="login">登录</a>
+				<a class="emphases" href="/login">登录</a>
 				{% endif %}
 			</div>
 		</div>

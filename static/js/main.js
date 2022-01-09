@@ -4,12 +4,12 @@ var Vault = {}
 Vault.jsonHttp = new XMLHttpRequest();
 
 
-class Movie {
-    constructor(json) {
-        id = json['id']
+// class Movie {
+//     constructor(json) {
+//         id = json['id']
         
-    }
-}
+//     }
+// }
 
 
 // 获取最新添加的电影数据
@@ -90,9 +90,9 @@ function createTheLastNews(movieList) {
             }
             td.appendChild(document.createTextNode(movieList[i][valueIndex]))
             tr.appendChild(td)
-            tr.onclick = function() {
-                showMoviePage(this)
-            }
+        }
+        tr.onclick = function() {
+            showMoviePage(this)
         }
         contentTbl.appendChild(tr)
     }
@@ -101,6 +101,7 @@ function createTheLastNews(movieList) {
 function showMoviePage(movieTr) {
     let movieName = movieTr.children[0].innerText
     console.log("Show the detail of movie name: " + movieName)
+    window.location = "movie/" + movieName;
 }
 
 

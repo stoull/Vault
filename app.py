@@ -115,7 +115,15 @@ def backstage():
 	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
 		return render_template('backstage.html', user_name=escape(cookied_username))
 	else:
-		return render_template('backstage.html')
+		return make_response(redirect(f"/login"))
+
+@app.route("/movie/<movieName>", methods=['GET'])
+def moviePage(movieName):
+	cookied_username = request.cookies.get('username')
+	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
+		return render_template('movie.html', movie_name=escape(movieName))
+	else:
+		return make_response(redirect(f"/login"))
 
 # API with JSON
 from flask import jsonify
