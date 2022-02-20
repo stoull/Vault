@@ -57,12 +57,15 @@ class DBManager(object):
 
 			cur.execute('''CREATE TABLE director(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(40) NOT NULL,
-				name_en VARCHAR(40),
+				name_cn VARCHAR(100) NOT NULL,
+				name_en VARCHAR(100),
 				gender BOOLEAN,
 				birthday DATE,
 				leaveday DATE,
-				birthplace VARCHAR(20)
+				birthplace VARCHAR(100),
+				imdb VARCHAR(20),
+				intro TEXT,
+				photoUrl VARCHAR(200)
 				)''')
 
 			cur.execute('''CREATE TABLE actor(
