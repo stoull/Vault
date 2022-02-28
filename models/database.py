@@ -39,13 +39,16 @@ class DBManager(object):
 			# create movie table
 			cur.execute('''CREATE TABLE movie(
 				id INTEGER PRIMARY KEY,
- 				name VARCHAR(40) NOT NULL,
+ 				name VARCHAR(200) NOT NULL,
+ 				directors VARCHAR(40),
+ 				style VARCHAR(60),
  				releaseDate DATE,
  				language VARCHAR(20),
  				length REAL,
  				otherNames VARCHAR(100),
  				score INT,
  				synopsis TEXT,
+ 				imdb VARCHAR(20),
  				doubanUrl VARCHAR(200),
  				filePath VARCHAR(200),
  				fileUrl VARCHAR(200),
@@ -70,22 +73,28 @@ class DBManager(object):
 
 			cur.execute('''CREATE TABLE actor(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(40) NOT NULL,
-				name_en VARCHAR(40),
+				name_cn VARCHAR(100) NOT NULL,
+				name_en VARCHAR(100),
 				gender BOOLEAN,
 				birthday DATE,
 				leaveday DATE,
-				birthplace VARCHAR(20)
+				birthplace VARCHAR(100),
+				imdb VARCHAR(20),
+				intro TEXT,
+				photoUrl VARCHAR(200)
 				)''')
 
 			cur.execute('''CREATE TABLE scenarist(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(40) NOT NULL,
-				name_en VARCHAR(40),
+				name_cn VARCHAR(100) NOT NULL,
+				name_en VARCHAR(100),
 				gender BOOLEAN,
-				birthday DATETIME,
+				birthday DATE,
 				leaveday DATE,
-				birthplace VARCHAR(20)
+				birthplace VARCHAR(100),
+				imdb VARCHAR(20),
+				intro TEXT,
+				photoUrl VARCHAR(200)
 				)''')
 
 			cur.execute('''CREATE TABLE area(
