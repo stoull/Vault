@@ -40,7 +40,9 @@ class DBManager(object):
 			cur.execute('''CREATE TABLE movie(
 				id INTEGER PRIMARY KEY,
  				name VARCHAR(200) NOT NULL,
- 				directors VARCHAR(40),
+ 				directors VARCHAR(100),
+ 				scenarists VARCHAR(100),
+ 				actors VARCHAR(200),
  				style VARCHAR(60),
  				releaseDate DATE,
  				language VARCHAR(20),
