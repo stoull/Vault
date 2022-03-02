@@ -52,10 +52,10 @@ class DBManager(object):
  				synopsis TEXT,
  				imdb VARCHAR(20),
  				doubanUrl VARCHAR(200),
- 				filePath VARCHAR(200),
- 				fileUrl VARCHAR(200),
  				posterUrl VARCHAR(200),
  				iconUrl VARCHAR(200),
+ 				filePath VARCHAR(200),
+ 				fileUrl VARCHAR(200),
  				createDate DATETIME DEFAULT CURRENT_TIMESTAMP,
  				lastWatchDate DATETIME,
  				lastWatchUser VARCHAR(40))''')
