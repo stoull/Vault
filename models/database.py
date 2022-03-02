@@ -44,6 +44,7 @@ class DBManager(object):
  				scenarists VARCHAR(100),
  				actors VARCHAR(200),
  				style VARCHAR(60),
+ 				year INT,
  				releaseDate DATE,
  				language VARCHAR(20),
  				length REAL,
