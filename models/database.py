@@ -44,11 +44,11 @@ class DBManager(object):
  				scenarists VARCHAR(200),
  				actors VARCHAR(400),
  				style VARCHAR(60),
- 				year INT,
- 				releaseDate DATE,
+ 				year INTEGER,
+ 				releaseDate VARCHAR(200),
  				area VARCHAR(120),
  				language VARCHAR(60),
- 				length REAL,
+ 				length INTEGER,
  				otherNames VARCHAR(100),
  				score NUMERIC,
  				synopsis TEXT,
@@ -64,41 +64,56 @@ class DBManager(object):
 
 			cur.execute('''CREATE TABLE director(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(100) NOT NULL,
-				name_en VARCHAR(100),
+				name VARCHAR(100) NOT NULL,
 				gender BOOLEAN,
-				birthday DATE,
-				leaveday DATE,
+				zodiac VARCHAR(10),
+				livingTime VARCHAR(100),
+				birthday REAL,
+				leaveday REAL,
 				birthplace VARCHAR(100),
+				occupation VARCHAR(100),
+				names_cn VARCHAR(300),
+				names_en VARCHAR(300),
+				family VARCHAR(200),
 				imdb VARCHAR(20),
 				intro TEXT,
-				photoUrl VARCHAR(200)
+				photoUrl VARCHAR(250)
 				)''')
 
 			cur.execute('''CREATE TABLE actor(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(100) NOT NULL,
-				name_en VARCHAR(100),
+				name VARCHAR(100) NOT NULL,
 				gender BOOLEAN,
-				birthday DATE,
-				leaveday DATE,
+				zodiac VARCHAR(10),
+				livingTime VARCHAR(100),
+				birthday REAL,
+				leaveday REAL,
 				birthplace VARCHAR(100),
+				occupation VARCHAR(100),
+				names_cn VARCHAR(300),
+				names_en VARCHAR(300),
+				family VARCHAR(200),
 				imdb VARCHAR(20),
 				intro TEXT,
-				photoUrl VARCHAR(200)
+				photoUrl VARCHAR(250)
 				)''')
 
 			cur.execute('''CREATE TABLE scenarist(
 				id INTEGER PRIMARY KEY,
-				name_cn VARCHAR(100) NOT NULL,
-				name_en VARCHAR(100),
+				name VARCHAR(100) NOT NULL,
 				gender BOOLEAN,
-				birthday DATE,
-				leaveday DATE,
+				zodiac VARCHAR(10),
+				livingTime VARCHAR(100),
+				birthday REAL,
+				leaveday REAL,
 				birthplace VARCHAR(100),
+				occupation VARCHAR(100),
+				names_cn VARCHAR(300),
+				names_en VARCHAR(300),
+				family VARCHAR(200),
 				imdb VARCHAR(20),
 				intro TEXT,
-				photoUrl VARCHAR(200)
+				photoUrl VARCHAR(250)
 				)''')
 
 			cur.execute('''CREATE TABLE area(
