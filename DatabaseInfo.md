@@ -37,8 +37,8 @@
 | gender | BOOLEAN | 性别 |
 | zodiac | VARCHAR(10) | 星座 |
 | livingTime | VARCHAR(100) | 出生及离世时间String |
-| birthday | REAL | 出生日期 |
-| leaveday | REAL | 离世日期 |
+| birthday | INTEGER | 出生日期 Unix Time, the number of seconds since 1970-01-01 00:00:00 UTC.|
+| leaveday | INTEGER | 离世日期 Unix Time, the number of seconds since 1970-01-01 00:00:00 UTC.|
 | birthplace | VARCHAR(100) | 出生地 |
 | occupation | VARCHAR(100) | 职业 |
 | names_cn | VARCHAR(300) | 更多中文名 |
