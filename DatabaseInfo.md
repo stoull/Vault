@@ -1,4 +1,6 @@
-## 数据表信息
+## 数据表页
+
+### 数据表
 
 电影(movie)：
 
@@ -55,6 +57,7 @@
 |  ----  | ---- | ---- |
 | id | INTEGER |  |
 | name | VARCHAR(20) |  |
+|`unique (name)`|
 
 电影类型(type)：
 
@@ -62,6 +65,7 @@
 |  ----  | ---- | ---- |
 | id | INTEGER |  |
 | name | VARCHAR(40) |  |
+|`unique (name)`|
 
 电影标签(tag)：
 
@@ -69,16 +73,111 @@
 |  ----  | ---- | ---- |
 | id | INTEGER |  |
 | name | VARCHAR(40) |  |
+|`unique (name)`|
 
-用户(user)：
+电影语言(language)：
 
 |  字段   | 类型  | 说明  |
 |  ----  | ---- | ---- |
 | id | INTEGER |  |
-| name | VARCHAR(20) | 名字 |
-| alias | VARCHAR(20) | 别名 |
-| email | VARCHAR(20) | 邮箱 |
-| gender | INT | 性别 |
-| phoneNumber | VARCHAR(20) | 电话号码 |
-| introduction | TEXT | 绍介 |
-| createDate | DATETIME | 创建日期 |
+| name | VARCHAR(30) |  |
+|`unique (name)`|
+
+### 关系表
+
+电影_导演(movie_director)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| director_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_director_id | FOREIGN KEY (director_id) REFERENCES director(id)|  |
+
+电影_演员(movie_actor)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| actor_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_actor_id | FOREIGN KEY (actor_id) REFERENCES actor(id)|  |
+
+
+电影_编剧(movie_scenarist)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| scenarist_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_scenarist_id | FOREIGN KEY (scenarist_id) REFERENCES scenarist(id)|  |
+
+
+电影_地区(movie_area)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| area_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_area_id | FOREIGN KEY (area_id) REFERENCES area(id)|  |
+
+
+电影_类型(movie_type)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| type_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_type_id | FOREIGN KEY (type_id) REFERENCES type(id)|  |
+
+
+电影_标签(movie_tag)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| tag_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_tag_id | FOREIGN KEY (tag_id) REFERENCES tag(id)|  |
+
+
+电影_语言(movie_language)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| movie_id | INTEGER |  |
+| language_id | INTEGER |  |
+| FK_movie_id | FOREIGN KEY (movie_id) REFERENCES movie(id)|  |
+| FK_language_id | FOREIGN KEY (language_id) REFERENCES language(id)|  |
+
+导演_地区(diector_area)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| diector_id | INTEGER |  |
+| area_id | INTEGER |  |
+| FK_diector_id | FOREIGN KEY (diector_id) REFERENCES diector(id)|  |
+| FK_type_id | FOREIGN KEY (area_id) REFERENCES area(id)|  |
+
+
+编剧_地区(scenarist_area)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| scenarist_id | INTEGER |  |
+| area_id | INTEGER |  |
+| FK_diector_id | FOREIGN KEY (scenarist_id) REFERENCES scenarist(id)|  |
+| FK_type_id | FOREIGN KEY (area_id) REFERENCES area(id)|  |
+
+
+演员_地区(actor_area)：
+
+|  字段   | 类型  | 说明  |
+|  ----  | ---- | ---- |
+| actor_id | INTEGER |  |
+| area_id | INTEGER |  |
+| FK_diector_id | FOREIGN KEY (actor_id) REFERENCES actor(id)|  |
+| FK_type_id | FOREIGN KEY (area_id) REFERENCES area(id)|  |
