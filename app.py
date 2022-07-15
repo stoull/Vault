@@ -157,16 +157,21 @@ def get_database_data(tableName):
 @app.route("/login", methods=['POST'])
 def user_login_action():
 	# application/x-www-form-urlencoded
+	# form_content = request.form
+	# print(f"form {form_content}")
+
 	# json_content = request.get_json(silent=True)
 
+	# application/json
 	json_content = request.json
 
-	# application/json
-	form_content = request.form
-	print(f'json_content {json_content}')
-	print(f"form {form_content}")
-	json = jsonify(json_content)
-	if json_content['password'] == '123456':
+	username = json_content['username']
+	password = json_content['password']
+	LoginForm(request.form)
+	if password == "123456":
+		# 登录成功
+		resp.set_cookie("username", login_form.username)
 		return jsonify(username="user.username", password="ddddd")
+	How to set cookie here
 	else:
 		return jsonify(result="notlogin")
