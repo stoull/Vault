@@ -1,5 +1,8 @@
 
-class AuthManager():
+from models.singleton import Singleton
+
+
+class AuthManager(metaclass=Singleton):
 	"""docstring for AuthManager"""
 	def __init__(self):
 		self.authenticated_user_list = []

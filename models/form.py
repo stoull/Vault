@@ -1,6 +1,6 @@
 from models.user import User
 
-class LoginForm():
+class LoginForm:
 	"""docstring for LoginForm"""
 	def __init__(self, form):
 		self.form = form

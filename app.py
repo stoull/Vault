@@ -1,20 +1,23 @@
 import sqlite3
+
 from flask import Flask, request, Response, render_template
 from jinja2 import Environment, PackageLoader
 from markupsafe import escape
 from flask import make_response
 from flask import session
-from flask import Flask,redirect
+from flask import Flask, redirect
 
 # a if condition else b
 
 from models.form import LoginForm
 from models.authorization import AuthManager
+from models.response_manager import ResponseManager
 
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
 env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
+response_manager = ResponseManager(app)
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -108,10 +111,15 @@ def moviePage(movieName):
 	else:
 		return make_response(redirect(f"/login"))
 
-# API with JSON
-from flask import jsonify
 
-@app.route("/json/tables/", methods=['GET'])
+@app.route("/videoPlayer", methods=['GET'])
+def videoPlayer():
+	return render_template('video_player.html')
+
+# API with JSON
+from flask import jsonify, json
+
+@app.route("/json/tables/", methods=['POST'])
 def get_database_tables():
 	con = sqlite3.connect('models/vault.db')
 	cur = con.cursor()
@@ -124,7 +132,7 @@ def get_database_tables():
 	return jsonify(tables_names)
 	# return Response(json.dumps(talbe_names), mimetype='application/json')
 
-@app.route("/json/content/<tableName>", methods=['GET'])
+@app.route("/json/content/<tableName>", methods=['POST'])
 def get_database_data(tableName):
 	con = sqlite3.connect('models/vault.db')
 	cur = con.cursor()
@@ -170,8 +178,13 @@ def user_login_action():
 	LoginForm(request.form)
 	if password == "123456":
 		# 登录成功
-		resp.set_cookie("username", login_form.username)
-		return jsonify(username="user.username", password="ddddd")
-	How to set cookie here
+		data = {"username": "user.username", "password": "ddddd"}
+		resp = response_manager.json_response(data)
+
+		session["name"] = "Hut_test"
+		session["account_id"] = "siehdashww"
+
+		resp.set_cookie("username", "yourusernameherecookie")
+		return  resp
 	else:
 		return jsonify(result="notlogin")

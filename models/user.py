@@ -1,5 +1,5 @@
 
-class User():
+class User:
 	"""docstring for User"""
 	def __init__(self, userDic):
 		self.userDic = userDic
