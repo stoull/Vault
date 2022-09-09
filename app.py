@@ -23,7 +23,7 @@ response_manager = ResponseManager(app)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
-@app.route("/login", methods=['GET'])
+@app.route("/login", methods=['GET','POST'])
 def login_page():
 	if request.method == 'GET':
 		cookied_username = request.cookies.get('username')
@@ -70,9 +70,9 @@ def index_page():
 	# return app.send_static_file('login.html')
 	cookied_username = request.cookies.get('username')
 	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
-		return render_template('index.html', user_name=escape(cookied_username))
+		return render_template('index_new.html', user_name=escape(cookied_username))
 	else:
-		return render_template('index.html')
+		return render_template('index_new.html')
 
 	# template = env.get_template('index.html')
 	# return template.render()
@@ -132,6 +132,7 @@ def get_database_tables():
 	return jsonify(tables_names)
 	# return Response(json.dumps(talbe_names), mimetype='application/json')
 
+# 按表各取数据
 @app.route("/json/content/<tableName>", methods=['POST'])
 def get_database_data(tableName):
 	con = sqlite3.connect('models/vault.db')
@@ -161,8 +162,26 @@ def get_database_data(tableName):
 	cur.close()
 	return jsonify(datas)
 
+# 获取最近更新的二十个电影
+@app.route("/json/movie/theLastMovies", methods=['POST'])
+def get_theLastMovies():
+	con = sqlite3.connect('models/vault.db')
+	cur = con.cursor()
+	cur.execute("SELECT * FROM movie ORDER BY create_date DESC LIMIT 20;")
+	datas = []
+	for data in cur.fetchall():
+		keyList = ["id", "name", "directors", "scenarists", "actors", "style", "year", "release_date", "area", "language", "length", "other_names", "score", "rating_number", "synopsis", "imdb", "poster_name", "filePath", "fileUrl", "is_downloaded", "download_link", "create_date", "lastWatch_date", "lastWatch_user"]
+		movieDic = {}
+		for i in range(0, len(keyList)):
+			key = keyList[i]
+			movieDic[key] = data[i]
+		if len(movieDic) > 0:
+			datas.append(movieDic)
+	con.commit()
+	cur.close()
+	return jsonify(datas)
 
-@app.route("/login", methods=['POST'])
+@app.route("/loginUser", methods=['POST'])
 def user_login_action():
 	# application/x-www-form-urlencoded
 	# form_content = request.form

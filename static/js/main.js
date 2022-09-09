@@ -14,8 +14,8 @@ Vault.jsonHttp = new XMLHttpRequest();
 
 // 获取最新添加的电影数据
 function httpGetTheLastUpdateAndUpdateUI() {
-    let lastUpdateUrl = "/json/content/movie";
-    Vault.jsonHttp.open('GET', lastUpdateUrl);
+    let lastUpdateUrl = "/json/movie/theLastMovies";
+    Vault.jsonHttp.open('POST', lastUpdateUrl);
     Vault.jsonHttp.onload = function (e) {
         if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
             let jsonResult = JSON.parse(Vault.jsonHttp.response);
@@ -44,14 +44,14 @@ function httpGetSideTableJsonDataAndUpdateUI()
             // alert("错误：" + jsonHttp.readyState)
         }
     }
-    Vault.jsonHttp.open("GET", table_json_url, true); // true for asynchronous 
+    Vault.jsonHttp.open("POST", table_json_url, true); // true for asynchronous 
     Vault.jsonHttp.send(null);
 }
 
 // 获取对应的表数据，并更新显示
 function httpGetTableContentDataAndUpdateUI(tableName) {
     let content_url = "/json/content".concat("/", tableName)
-    Vault.jsonHttp.open('GET', content_url, true) // true 表示异步
+    Vault.jsonHttp.open('POST', content_url, true) // true 表示异步
     Vault.jsonHttp.onload = function (e) {
         if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
             let resultJson = JSON.parse(Vault.jsonHttp.response);
@@ -71,30 +71,42 @@ function httpGetTableContentDataAndUpdateUI(tableName) {
 
 // ==========  首页 ==========
 function createTheLastNews(movieList) {
-    let contentTbl = document.getElementById('last_update_table');
+    console.log(movieList)
+    let contentDiv = document.getElementById('last_update_gallery');
     for (let i=0; i < movieList.length; i++) {
-        let tr = document.createElement('tr');
-        for (let j=0; j<4; j++) {
-            let td = document.createElement('td');
-            td.setAttribute('class', 'data_content');
-            let valueIndex = j;
-            if (j == 0) {
-                valueIndex = 1
-            } else if (j == 1) {
-                valueIndex = 7
-                td.setAttribute('style', 'text-align: left;')
-            } else if (j == 2) {
-                valueIndex = 6
-            } else {
-                valueIndex = 12
-            }
-            td.appendChild(document.createTextNode(movieList[i][valueIndex]))
-            tr.appendChild(td)
-        }
-        tr.onclick = function() {
-            showMoviePage(this)
-        }
-        contentTbl.appendChild(tr)
+        let movie = movieList[i]
+        let a_item = document.createElement('a');
+        a_item.setAttribute('href','login');
+        a_item.setAttribute('target','_blank');
+        a_item.setAttribute('class','default');
+
+        let img_item = document.createElement('img');
+        img_item.setAttribute('alt', movie['name']);
+        img_item.setAttribute('src',movie['poster_name']);
+        img_item.setAttribute('class','gallery_item');
+
+        let info_div = document.createElement('div');
+        info_div.setAttribute('class','gallery_info_item');
+
+        let title_item = document.createElement('p');
+        title_item.setAttribute('class','title_s gallery_item');
+        title_item.textContent = movie["name"]
+
+        let des_item = document.createElement('p');
+        des_item.setAttribute('class','title_s gallery_item');
+        des_item.textContent = movie["year"] + " " + movie["style"]
+
+        let starts_div = document.createElement('div');
+        starts_div.setAttribute('class', 'drc-rating drc-subject-info-rating m');
+
+        info_div.appendChild(title_item)
+        info_div.appendChild(des_item)
+        info_div.appendChild(starts_div)
+
+        a_item.appendChild(img_item)
+        a_item.appendChild(info_div)
+
+        contentDiv.appendChild(a_item)
     }
 }
 
