@@ -167,7 +167,7 @@ def get_database_data(tableName):
 def get_theLastMovies():
 	con = sqlite3.connect('models/vault.db')
 	cur = con.cursor()
-	cur.execute("SELECT * FROM movie ORDER BY create_date DESC LIMIT 20;")
+	cur.execute("SELECT * FROM movie ORDER BY create_date DESC LIMIT 100;")
 	datas = []
 	for data in cur.fetchall():
 		keyList = ["id", "name", "directors", "scenarists", "actors", "style", "year", "release_date", "area", "language", "length", "other_names", "score", "rating_number", "synopsis", "imdb", "poster_name", "filePath", "fileUrl", "is_downloaded", "download_link", "create_date", "lastWatch_date", "lastWatch_user"]

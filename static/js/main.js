@@ -82,7 +82,7 @@ function createTheLastNews(movieList) {
 
         let img_item = document.createElement('img');
         img_item.setAttribute('alt', movie['name']);
-        img_item.setAttribute('src',movie['poster_name']);
+        img_item.setAttribute('src',"/static/images/poster/" + movie['poster_name']);
         img_item.setAttribute('class','gallery_item');
 
         let info_div = document.createElement('div');
@@ -93,11 +93,44 @@ function createTheLastNews(movieList) {
         title_item.textContent = movie["name"]
 
         let des_item = document.createElement('p');
-        des_item.setAttribute('class','title_s gallery_item');
+        des_item.setAttribute('class','');
         des_item.textContent = movie["year"] + " " + movie["style"]
 
         let starts_div = document.createElement('div');
         starts_div.setAttribute('class', 'drc-rating drc-subject-info-rating m');
+
+        let score = movie["score"];
+        let score_int = Math.round(score);
+
+        let starts_item = document.createElement('span');
+        starts_item.setAttribute('class', 'drc-rating-stars drc-subject-info-rating-stars m');
+//        starts_item.setAttribute('data-rating', score*0.5);
+
+        let temp_score = score_int;
+        for (let i = 0; i < 5; i++) {
+            if (temp_score >= 2) {
+                let start_item = document.createElement('span');
+                start_item.setAttribute('class', 'drc-rating-stars-item drc-rating-stars-item-full m');
+                starts_item.appendChild(start_item)
+            } else if (temp_score >= 1) {
+                let start_item = document.createElement('span');
+                start_item.setAttribute('class', 'drc-rating-stars-item drc-rating-stars-item-half m');
+                starts_item.appendChild(start_item)
+            } else {
+                let start_item = document.createElement('span');
+                start_item.setAttribute('class', 'drc-rating-stars-item drc-rating-stars-item-gray m');
+                starts_item.appendChild(start_item)
+            }
+            temp_score -= 2;
+        }
+
+        let start_item_text = document.createElement('span');
+        start_item_text.setAttribute('class', 'drc-rating-num');
+        start_item_text.textContent = score.toString();
+
+        starts_item.appendChild(start_item_text)
+
+        starts_div.appendChild(starts_item)
 
         info_div.appendChild(title_item)
         info_div.appendChild(des_item)
