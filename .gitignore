@@ -2,6 +2,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/pycharm,python,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm,python,macos
 
+# sensitive data
+static/images/poster/
+models/vault.db
+
+
 ### macOS ###
 # General
 .DS_Store

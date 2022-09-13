@@ -309,6 +309,13 @@ td.data_content {
     vertical-align: middle*/;
 }
 
+.data_content_img {
+    width: 100px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
 tr:hover{
     background-color: #eee;
     cursor: default;

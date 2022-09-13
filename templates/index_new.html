@@ -13,16 +13,36 @@ Index
 {% endblock %}
 
 {% block content %}
-	<div class="section">
-		<h2>最新动态</h2>
+	<h2>最新动态</h2>
+	<button class="emphases" id="change_layout">Table</button>
+	<div class="section" id="content_section">
 
-		<div id="last_update_gallery" class="gallery">
-    	</div>
 	</div>
 	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
 	<script>
+
+	let is_layout_grid = false
+	let layout_button = document.getElementById("change_layout");
+	if (layout_button.textContent=="Table") {
+		is_layout_grid = true;
+	} else {
+		is_layout_grid = false;
+	};
+	console.log(is_layout_grid)
 	document.addEventListener("DOMContentLoaded", function(event) {
-		httpGetTheLastUpdateAndUpdateUI();
+		httpGetTheLastUpdateAndUpdateUI(is_layout_grid);
 	});
+
+
+	layout_button.onclick = function() {
+		is_layout_grid = !is_layout_grid;
+		console.log(is_layout_grid)
+  		if (is_layout_grid) {
+  			layout_button.textContent = "Table"
+  		} else {
+  			layout_button.textContent = "Grid"
+  		};
+  		httpGetTheLastUpdateAndUpdateUI(is_layout_grid);
+	};
 	</script>
 {% endblock %}

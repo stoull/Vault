@@ -13,13 +13,17 @@ Vault.jsonHttp = new XMLHttpRequest();
 
 
 // 获取最新添加的电影数据
-function httpGetTheLastUpdateAndUpdateUI() {
+function httpGetTheLastUpdateAndUpdateUI(isGrid) {
     let lastUpdateUrl = "/json/movie/theLastMovies";
     Vault.jsonHttp.open('POST', lastUpdateUrl);
     Vault.jsonHttp.onload = function (e) {
         if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
             let jsonResult = JSON.parse(Vault.jsonHttp.response);
-            createTheLastNews(jsonResult);
+            if (isGrid==true) {
+                createTheLastNewsInGrid(jsonResult);
+            } else {
+                createTheLastNewsTableList(jsonResult);
+            }
             // console.log("httpGetTheLastUpdateAndUpdateUI " + jsonResult)
         } else {
             console.error(Vault.jsonHttp.statusText);
@@ -70,9 +74,13 @@ function httpGetTableContentDataAndUpdateUI(tableName) {
 
 
 // ==========  首页 ==========
-function createTheLastNews(movieList) {
-    console.log(movieList)
-    let contentDiv = document.getElementById('last_update_gallery');
+function createTheLastNewsInGrid(movieList) {
+    let contentDiv = document.getElementById('content_section');
+    contentDiv.innerHTML = '';
+
+    let gallery_div = document.createElement('div');
+    gallery_div.setAttribute('class', 'gallery');
+
     for (let i=0; i < movieList.length; i++) {
         let movie = movieList[i]
         let a_item = document.createElement('a');
@@ -139,7 +147,58 @@ function createTheLastNews(movieList) {
         a_item.appendChild(img_item)
         a_item.appendChild(info_div)
 
-        contentDiv.appendChild(a_item)
+        gallery_div.appendChild(a_item)
+    }
+    contentDiv.appendChild(gallery_div)
+}
+
+// ==========  首页列表图 ==========
+function createTheLastNewsTableList(movieList) {
+    let contentDiv = document.getElementById('content_section');
+    contentDiv.innerHTML = '';
+
+    let content_table = document.createElement('table');
+    content_table.setAttribute('class', 'data_content');
+    contentDiv.appendChild(content_table)
+
+    // create index header
+    let index_tr = document.createElement('tr');
+
+    let indexTitles = ["", "电影名", "年份", "类型", "评分", "介绍", "更新日期"];
+    let indexKeys = ["poster_name", "name", "year", "style", "score", "synopsis", "create_date"];
+    for (i=0; i<indexTitles.length; i++) {
+        let title = indexTitles[i];
+        let index_th = document.createElement('th');
+        index_th.setAttribute('class', 'data_content_th');
+        index_th.textContent = title;
+        index_tr.appendChild(index_th);
+    }
+    content_table.appendChild(index_tr);
+
+    for (let i=0; i < movieList.length; i++) {
+        let tr = document.createElement('tr');
+        let movie = movieList[i]
+        for (let j=0; j<indexTitles.length; j++) {
+            let td = document.createElement('td');
+            td.setAttribute('class', 'data_content');
+
+            let key = indexKeys[j];
+            if (key=="poster_name") {
+                let img_item = document.createElement('img');
+                img_item.setAttribute('alt', movie['name']);
+                img_item.setAttribute('src',"/static/images/poster/" + movie['poster_name']);
+                img_item.setAttribute('class','data_content_img');
+                td.appendChild(img_item)
+            } else {
+                td.appendChild(document.createTextNode(movie[key]));
+            }
+
+            tr.appendChild(td);
+        }
+        tr.onclick = function() {
+            showMoviePage(this);
+        }
+        contentDiv.appendChild(tr);
     }
 }
 
