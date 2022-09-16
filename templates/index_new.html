@@ -14,10 +14,15 @@ Index
 
 {% block content %}
 	<h2>最新动态</h2>
-	<button class="emphases" id="change_layout">Table</button>
+	<button class="default" id="change_layout">Table</button>
 	<div class="section" id="content_section">
 
 	</div>
+
+	<div>
+		<button class="default" id="load_more">加载更多</button>
+	</div>
+
 	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
 	<script>
 
@@ -44,5 +49,11 @@ Index
   		};
   		httpGetTheLastUpdateAndUpdateUI(is_layout_grid);
 	};
+
+	let loadMore_button = document.getElementById("load_more");
+		loadMore_button.onclick = function() {
+
+		};
+
 	</script>
 {% endblock %}

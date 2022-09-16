@@ -12,6 +12,7 @@ Vault.jsonHttp = new XMLHttpRequest();
 // }
 
 
+
 // 获取最新添加的电影数据
 function httpGetTheLastUpdateAndUpdateUI(isGrid) {
     let lastUpdateUrl = "/json/movie/theLastMovies";
