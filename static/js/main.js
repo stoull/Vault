@@ -3,7 +3,6 @@ var Vault = {}
 
 Vault.jsonHttp = new XMLHttpRequest();
 
-
 // class Movie {
 //     constructor(json) {
 //         id = json['id']
@@ -73,6 +72,62 @@ function httpGetTableContentDataAndUpdateUI(tableName) {
     Vault.jsonHttp.send(null);
 }
 
+// 视频详情页 获取对应subject 电影id的数据详情
+function httpGetSubjectDetail(subjectId) {
+    let content_url = "/json/subject".concat("/", subjectId)
+    Vault.jsonHttp.open('POST', content_url, true) // true 表示异步
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
+            // console.log(resultJson)
+            updateSubjectDetailPage(resultJson)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
+
+// 视频详情页 获取对应subject 电影id的评论数据
+function httpGetSubjectComments(subjectId) {
+    let content_url = "/json/subject".concat("/", subjectId)
+    Vault.jsonHttp.open('POST', content_url, true) // true 表示异步
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
+            // console.log(resultJson)
+            updateSubjectDetailPage(resultJson)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
+
+// 视频播放页 获取对应subject 电影id的数据详情
+function httpGetSubjectDetailForPlayer(subjectId) {
+    let content_url = "/json/subject".concat("/", subjectId)
+    Vault.jsonHttp.open('POST', content_url, true) // true 表示异步
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
+            // console.log(resultJson)
+            updateVideoPlayerTitle(resultJson)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
 
 // ==========  首页 ==========
 function createTheLastNewsInGrid(movieList) {
@@ -85,9 +140,9 @@ function createTheLastNewsInGrid(movieList) {
     for (let i=0; i < movieList.length; i++) {
         let movie = movieList[i]
         let a_item = document.createElement('a');
-        a_item.setAttribute('href','login');
-        a_item.setAttribute('target','_blank');
-        a_item.setAttribute('class','default');
+        a_item.setAttribute('href','subject/' + movie['id']);
+        a_item.setAttribute('target','_self');
+        a_item.setAttribute('class','grid_item');
 
         let img_item = document.createElement('img');
         img_item.setAttribute('alt', movie['name']);
@@ -164,6 +219,7 @@ function createTheLastNewsTableList(movieList) {
 
     // create index header
     let index_tr = document.createElement('tr');
+    index_tr.setAttribute('class', 'data_content_tr');
 
     let indexTitles = ["", "电影名", "年份", "类型", "评分", "介绍", "更新日期"];
     let indexKeys = ["poster_name", "name", "year", "style", "score", "synopsis", "create_date"];
@@ -196,6 +252,7 @@ function createTheLastNewsTableList(movieList) {
 
             tr.appendChild(td);
         }
+        tr.setAttribute('id', movie['id'])
         tr.onclick = function() {
             showMoviePage(this);
         }
@@ -203,10 +260,93 @@ function createTheLastNewsTableList(movieList) {
     }
 }
 
+// ==========  电影详情页 ==========
+function updateSubjectDetailPage(movie) {
+    let movie_id = movie['id'];
+    // title
+    let titleDiv = document.getElementById('title');
+
+    let hTitle = document.createElement('h');
+    hTitle.textContent = movie['name'] + '(' + movie['year'] + ")"
+
+    titleDiv.appendChild(hTitle);
+
+    // poster image
+    let coverDiv = document.getElementById('cover');
+    coverDiv.innerHTML = '';
+
+    let img_item = document.createElement('img');
+    img_item.setAttribute('alt', movie['name']);
+    img_item.setAttribute('src',"/static/images/poster/" + movie['poster_name']);
+    img_item.setAttribute('class','gallery_item');
+
+    let palyButton = document.createElement('button');
+    palyButton.setAttribute('class', 'movie_info_play');
+    palyButton.append("Play");
+    palyButton.onclick = function() {
+        if (movie['is_downloaded'] == "1") {
+            window.open("/videoPlayer/"+movie_id, "_self");
+        } else {
+            alert("文件未下载！")
+        }
+    }
+
+    coverDiv.appendChild(img_item);
+    coverDiv.appendChild(palyButton);
+
+    let detailDiv = document.getElementById('infos');
+
+    detailDiv.appendChild(createDetailLableBlock("导演", movie['directors']));
+    detailDiv.appendChild(createDetailLableBlock("编剧", movie['scenarists']));
+    detailDiv.appendChild(createDetailLableBlock("演员", movie['actors']));
+    detailDiv.appendChild(createDetailLableBlock("类型", movie['style']));
+    detailDiv.appendChild(createDetailLableBlock("地区", movie['area']));
+    detailDiv.appendChild(createDetailLableBlock("时长", movie['length']));
+    detailDiv.appendChild(createDetailLableBlock("其它名称", movie['other_names']));
+    detailDiv.appendChild(createDetailLableBlock("评分", movie['score']));
+    detailDiv.appendChild(createDetailLableBlock("评分人数", movie['rating_number']));
+    detailDiv.appendChild(createDetailLableBlock("已下载", movie['is_downloaded']));
+
+    let introDiv = document.getElementById('intro');
+    let introP = document.createElement('p');
+    introP.textContent = movie["synopsis"];
+    introDiv.appendChild(introP);
+
+
+//    let introDiv = document.getElementById('comment');
+
+
+}
+
+function createDetailLableBlock(name, values)
+{
+    let detailP = document.createElement('p');
+    detailP.setAttribute('class', 'movie_info_label');
+    // detailP.setAttribute('style', 'display: inline;');
+    let detailPEm = document.createElement('em');
+    detailPEm.setAttribute('class', 'movie_info_title');
+    detailPEm.textContent = name;
+    detailP.appendChild(detailPEm);
+    detailP.append(" : ");
+    detailP.append(values);
+//    detailP.textContent = values;
+    return detailP
+}
+
+// ==========  电影播放页 ==========
+function updateVideoPlayerTitle(movie) {
+	let titleDiv = document.getElementById('title');
+	titleDiv.setAttribute('style', 'text-align: center;');
+	let hTitle = document.createElement('h');
+	hTitle.textContent = movie['name'] + '(' + movie['year'] + ")"
+	titleDiv.appendChild(hTitle);
+}
+
 function showMoviePage(movieTr) {
-    let movieName = movieTr.children[0].innerText
-    console.log("Show the detail of movie name: " + movieName)
-    window.location = "movie/" + movieName;
+//    let movieName = movieTr.children[0].innerText
+    let movieId = movieTr.getAttribute('id')
+    console.log("Show the detail of movie id: " + movieId)
+    window.location = "subject/" + movieId;
 }
 
 

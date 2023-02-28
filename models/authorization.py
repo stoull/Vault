@@ -11,7 +11,7 @@ class AuthManager(metaclass=Singleton):
 		if username in self.authenticated_user_list:
 			return True
 		else:
-			return False
+			return True # 这里测试用要改过来
 
 	def authorize(self, login_form):
 		# if login_form.username is exist: and password is right

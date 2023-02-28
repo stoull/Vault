@@ -5,6 +5,8 @@
 
 html {
   height: 100%;
+  max-width: 100%;
+    overflow-x: hidden;
 }
 
 body {
@@ -22,9 +24,9 @@ body {
 }
 
 .navigator {
-    position: relative;
-    margin: 10px 20px 0 10px;
-    height: 36px;
+    margin: 0px 0px 0px 0px;
+    padding: 10px 0px 8px 0px;
+    height: 50px;
 }
 
 .footer {
@@ -48,6 +50,8 @@ div.content {
 }
 
 div.section {
+    width: 100%;
+    height: 100%;
     border: dashed #ccc 1px;
     border-radius: 8px;
     margin: 10px;
@@ -60,12 +64,13 @@ div.form {
 }
 
 div.left {
-    position: absolute;
+    display: inline-block;
+    float: left;
     text-align: left;
     margin-left: 0;
     margin-top: 0;
     /*top: 50%;*/
-    width: 100%;
+    width: 120px;
 }
 
 .gallery {
@@ -115,12 +120,14 @@ p.title_s {
 }
 
 div.user_info {
-    position: absolute;
+    display: inline-block;
+    float: right;
     text-align: right;
-    margin-right: 0;
-    margin-top: 0;
+    padding: 8px 12px 2px 0;
     /*top: 50%;*/
-    width: 100%;
+    width: 40%;
+    height: 44px;
+    vertical-align: top;
 }
 
 div.error {
@@ -170,8 +177,8 @@ div.right_content {
 
 img.large_icon {
     width: 80px;
-    height: 30px;
-    vertical-align: baseline;
+    height: 40px;
+    vertical-align: bottom;
     object-fit: contain;
 }
 
@@ -190,6 +197,13 @@ button.default {
     border: #ccc solid 1px;
     border-radius: 6px;
     font-size: 14px;
+}
+
+div.change_layout {
+    display: none;
+    background: #fff;
+    text-align: right;
+    padding: 0 12px 0 0;
 }
 
 button.emphases {
@@ -212,7 +226,18 @@ button.edit {
 }
 
 a.default {
+    width: 120px;
+    height: 44px;
     text-decoration: none;
+    text-align: left;
+    padding-top: 8px;
+}
+
+a.grid_item {
+    width: 280px;
+    height: auto;
+    text-decoration: none;
+    text-align: left;
 }
 
 a.emphases {
@@ -221,8 +246,111 @@ a.emphases {
     font-weight: bold;
 }
 
-div.movie_title {
+div.movie_info_title {
+    text-decoration: none;
+    width: 60%;
+    min-width: 10px;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: left;
+    margin: auto;
+    padding: 8px;
+}
 
+div.movie_info {
+    max-width: 60%;
+    min-width: 120px;
+    margin: auto;
+    padding: 8px;
+    text-align: left;
+}
+
+div.movie_info_cover {
+	vertical-align: top;
+	display: inline-block;
+    width: 300px;
+    height: auto;
+    /*height: 440px;*/
+    padding: 4px;
+    margin: 2px;
+    text-align: center;
+
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+button.movie_info_play {
+    width: 300px;
+    height: 56px;
+    margin: 3px;
+    margin-top: 18px;
+    background: #fff;
+    text-align: center;
+    border: #ccc solid 1px;
+    border-radius: 6px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+div.movie_info_detail {
+	vertical-align: top;
+	display: inline-block;
+    max-width: 80%;
+    main-width: 40%
+    padding: 4px;
+    padding-top: 12px;
+    margin: 2px;
+    text-align: left;
+}
+
+div.video_player {
+    width: 800px;
+    height: 500px;
+    margin: auto;
+    text-align: center;
+
+    align-items: center;
+    justify-content: center;
+}
+
+em.movie_info_title {
+    color: #333333;
+    height: 24px;
+    margin: 1px;
+}
+
+p.movie_info_label {
+    color: #666666;
+    height: 22px;
+    margin: 1px;
+}
+
+p.movie_intro_emphasis {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+div.movie_intro {
+    width: 60%;
+    min-width: 20px;
+    font-size: 16px;
+    font-family: sans-serif;
+    color: #333333;
+    text-align: left;
+    margin: auto;
+    padding: 8px;
+}
+
+
+div.movie_comment {
+    width: 60%;
+    min-width: 20px;
+    font-size: 16px;
+    font-family: sans-serif;
+    color: #333333;
+    text-align: left;
+    margin: auto;
+    padding: 8px;
 }
 
 div.user_input {
@@ -307,11 +435,23 @@ td.data_content {
     border-radius: 0px;
     text-align: center;
     vertical-align: middle*/;
+
+    text-align: left;
+    vertical-align: middle;
+}
+
+tr.data_content_tr {
+
+}
+
+th.data_content_th {
+
 }
 
 .data_content_img {
-    width: 100px;
-    height: 120px;
+    max-height: 160px;
+    min-height: 100px;
+    width: auto;
     object-fit: cover;
     border-radius: 10px;
 }

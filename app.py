@@ -103,21 +103,41 @@ def backstage():
 	else:
 		return make_response(redirect(f"/login"))
 
-@app.route("/movie/<movieName>", methods=['GET'])
-def moviePage(movieName):
+# 按movie id 查询详情信息
+@app.route("/subject/<movie_id>", methods=['GET'])
+def subjectDetailPage(movie_id):
 	cookied_username = request.cookies.get('username')
 	if cookied_username is not None and auth_manager.isAuthenticated(cookied_username):
-		return render_template('movie.html', movie_name=escape(movieName))
+		return render_template('movie.html', movie_id=escape(movie_id))
 	else:
 		return make_response(redirect(f"/login"))
 
-
-@app.route("/videoPlayer", methods=['GET'])
-def videoPlayer():
-	return render_template('video_player.html')
+@app.route("/videoPlayer/<movie_id>", methods=['GET'])
+def videoPlayer(movie_id):
+	return render_template('video_player.html', movie_id=escape(movie_id))
 
 # API with JSON
 from flask import jsonify, json
+
+@app.route("/json/subject/<subject_id>", methods=['POST'])
+def get_database_movie(subject_id):
+	con = sqlite3.connect('models/vault.db')
+	cur = con.cursor()
+	cur.execute('''SELECT * FROM movie WHERE id=? LIMIT 1''', (subject_id,))
+	data = cur.fetchone()
+	keyList = ["id", "name", "directors", "scenarists", "actors", "style", "year", "release_date", "area", "language",
+			   "length", "other_names", "score", "rating_number", "synopsis", "imdb", "poster_name", "filePath",
+			   "fileUrl", "is_downloaded", "download_link", "create_date", "lastWatch_date", "lastWatch_user"]
+	movieDic = {}
+	for i in range(0, len(keyList)):
+		key = keyList[i]
+		movieDic[key] = data[i]
+
+	con.commit()
+	cur.close()
+	return jsonify(movieDic)
+
+
 
 @app.route("/json/tables/", methods=['POST'])
 def get_database_tables():

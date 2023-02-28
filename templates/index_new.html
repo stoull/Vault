@@ -10,11 +10,22 @@ Index
 
 {% block head %}
 {{ super() }}
+
+<style>
+	html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+	}
+</style>
+
 {% endblock %}
 
 {% block content %}
 	<h2>最新动态</h2>
-	<button class="default" id="change_layout">Table</button>
+	<div class="change_layout">
+		<button class="default" id="change_layout">列表显示</button>
+	</div>
+
 	<div class="section" id="content_section">
 
 	</div>
@@ -28,7 +39,7 @@ Index
 
 	let is_layout_grid = false
 	let layout_button = document.getElementById("change_layout");
-	if (layout_button.textContent=="Table") {
+	if (layout_button.textContent=="列表显示") {
 		is_layout_grid = true;
 	} else {
 		is_layout_grid = false;
@@ -43,9 +54,9 @@ Index
 		is_layout_grid = !is_layout_grid;
 		console.log(is_layout_grid)
   		if (is_layout_grid) {
-  			layout_button.textContent = "Table"
+  			layout_button.textContent = "列表显示"
   		} else {
-  			layout_button.textContent = "Grid"
+  			layout_button.textContent = "图片展示"
   		};
   		httpGetTheLastUpdateAndUpdateUI(is_layout_grid);
 	};
