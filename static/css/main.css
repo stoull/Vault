@@ -258,7 +258,7 @@ div.movie_info_title {
 }
 
 div.movie_info {
-    max-width: 60%;
+    max-width: 76%;
     min-width: 120px;
     margin: auto;
     padding: 8px;
@@ -280,7 +280,7 @@ div.movie_info_cover {
 }
 
 button.movie_info_play {
-    width: 300px;
+    width: 264px;
     height: 56px;
     margin: 3px;
     margin-top: 18px;
@@ -295,8 +295,7 @@ button.movie_info_play {
 div.movie_info_detail {
 	vertical-align: top;
 	display: inline-block;
-    max-width: 80%;
-    main-width: 40%
+    width: 60%;
     padding: 4px;
     padding-top: 12px;
     margin: 2px;
@@ -321,7 +320,7 @@ em.movie_info_title {
 
 p.movie_info_label {
     color: #666666;
-    height: 22px;
+    height: auto;
     margin: 1px;
 }
 
@@ -331,7 +330,7 @@ p.movie_intro_emphasis {
 }
 
 div.movie_intro {
-    width: 60%;
+    width: 76%;
     min-width: 20px;
     font-size: 16px;
     font-family: sans-serif;
@@ -343,7 +342,7 @@ div.movie_intro {
 
 
 div.movie_comment {
-    width: 60%;
+    width: 76%;
     min-width: 20px;
     font-size: 16px;
     font-family: sans-serif;

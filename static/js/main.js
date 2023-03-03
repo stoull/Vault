@@ -305,7 +305,14 @@ function updateSubjectDetailPage(movie) {
     detailDiv.appendChild(createDetailLableBlock("其它名称", movie['other_names']));
     detailDiv.appendChild(createDetailLableBlock("评分", movie['score']));
     detailDiv.appendChild(createDetailLableBlock("评分人数", movie['rating_number']));
+    detailDiv.appendChild(createDetailLableBlock("位置", movie['filePath']));
     detailDiv.appendChild(createDetailLableBlock("已下载", movie['is_downloaded']));
+    detailDiv.appendChild(createDetailLableBlock("", movie['']));
+    detailDiv.appendChild(createDetailLableBlock("", movie['']));
+    detailDiv.appendChild(createDetailLableBlock("", movie['']));
+
+    detailDiv.appendChild(createDetailLableBlock("简介", movie['synopsis']));
+
 
     let introDiv = document.getElementById('intro');
     let introP = document.createElement('p');
@@ -327,8 +334,12 @@ function createDetailLableBlock(name, values)
     detailPEm.setAttribute('class', 'movie_info_title');
     detailPEm.textContent = name;
     detailP.appendChild(detailPEm);
-    detailP.append(" : ");
-    detailP.append(values);
+    if (values == undefined) {
+    } else {
+        detailP.append(" : ");
+        detailP.append(values);
+    }
+
 //    detailP.textContent = values;
     return detailP
 }
