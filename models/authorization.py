@@ -22,6 +22,6 @@ class AuthManager(metaclass=Singleton):
 			return False
 
 	def deAuthorize(self, username):
-		self.authenticated_user_list.remove(login_form.username)
+		self.authenticated_user_list.remove(username)
 
 		

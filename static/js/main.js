@@ -91,6 +91,25 @@ function httpGetSubjectDetail(subjectId) {
     Vault.jsonHttp.send(null);
 }
 
+// 人物详情页 获取对应subject 电影id的数据详情
+function httpGetCelebrityDetail(celebrity_id) {
+    let content_url = "/json/celebrity".concat("/", celebrity_id)
+    Vault.jsonHttp.open('POST', content_url, true) // true 表示异步
+    Vault.jsonHttp.onload = function (e) {
+        if (Vault.jsonHttp.readyState == 4 && Vault.jsonHttp.status == 200) {
+            let resultJson = JSON.parse(Vault.jsonHttp.response);
+            // console.log(resultJson)
+            updateCelebrityDetailPage(resultJson)
+        } else {
+            console.error(Vault.jsonHttp.statusText);
+        }
+    }
+    Vault.jsonHttp.onerror = function (e) {
+        console.error(Vault.jsonHttp.statusText);
+    }
+    Vault.jsonHttp.send(null);
+}
+
 // 视频详情页 获取对应subject 电影id的评论数据
 function httpGetSubjectComments(subjectId) {
     let content_url = "/json/subject".concat("/", subjectId)
@@ -140,7 +159,7 @@ function createTheLastNewsInGrid(movieList) {
     for (let i=0; i < movieList.length; i++) {
         let movie = movieList[i]
         let a_item = document.createElement('a');
-        a_item.setAttribute('href','subject/' + movie['id']);
+        a_item.setAttribute('href','/subject/' + movie['id']);
         a_item.setAttribute('target','_self');
         a_item.setAttribute('class','grid_item');
 
@@ -313,7 +332,6 @@ function updateSubjectDetailPage(movie) {
 
     detailDiv.appendChild(createDetailLableBlock("简介", movie['synopsis']));
 
-
     let introDiv = document.getElementById('intro');
     let introP = document.createElement('p');
     introP.textContent = movie["synopsis"];
@@ -325,19 +343,100 @@ function updateSubjectDetailPage(movie) {
 
 }
 
+// ==========  人物详情页 ==========
+function updateCelebrityDetailPage(celebrity) {
+    let celebrity_id = celebrity['id'];
+    // title
+    let titleDiv = document.getElementById('title');
+
+    let hTitle = document.createElement('h');
+    hTitle.textContent = celebrity['name']
+
+    titleDiv.appendChild(hTitle);
+
+    // poster image
+    let coverDiv = document.getElementById('cover');
+    coverDiv.innerHTML = '';
+
+    let img_item = document.createElement('img');
+    img_item.setAttribute('alt', celebrity['name']);
+    img_item.setAttribute('src',"/static/images/poster/" + celebrity['portrait_name']);
+    img_item.setAttribute('class','gallery_item');
+
+    coverDiv.appendChild(img_item);
+
+    let detailDiv = document.getElementById('infos');
+
+    detailDiv.appendChild(createDetailLableBlock("性别", celebrity['gender']));
+    detailDiv.appendChild(createDetailLableBlock("星座", celebrity['zodiac']));
+    detailDiv.appendChild(createDetailLableBlock("出生日期", celebrity['living_time']));
+    detailDiv.appendChild(createDetailLableBlock("出生地", celebrity['birthpalce']));
+    detailDiv.appendChild(createDetailLableBlock("职业", celebrity['occupation']));
+    detailDiv.appendChild(createDetailLableBlock("中文名", celebrity['names_cn']));
+    detailDiv.appendChild(createDetailLableBlock("英文名", celebrity['names_en']));
+    detailDiv.appendChild(createDetailLableBlock("家庭成员", celebrity['family']));
+    detailDiv.appendChild(createDetailLableBlock("imdb", celebrity['imdb']));
+
+    detailDiv.appendChild(createDetailLableBlock("", celebrity['']));
+    detailDiv.appendChild(createDetailLableBlock("", celebrity['']));
+    detailDiv.appendChild(createDetailLableBlock("", celebrity['']));
+
+    detailDiv.appendChild(createDetailLableBlock("简介", celebrity['intro']));
+
+
+//    let introDiv = document.getElementById('intro');
+//    let introP = document.createElement('p');
+//    introP.textContent = movie["synopsis"];
+//    introDiv.appendChild(introP);
+}
+
 function createDetailLableBlock(name, values)
 {
     let detailP = document.createElement('p');
     detailP.setAttribute('class', 'movie_info_label');
     // detailP.setAttribute('style', 'display: inline;');
-    let detailPEm = document.createElement('em');
-    detailPEm.setAttribute('class', 'movie_info_title');
-    detailPEm.textContent = name;
-    detailP.appendChild(detailPEm);
-    if (values == undefined) {
-    } else {
+
+    if (typeof values == 'object') {
+        let detailPEm = document.createElement('em');
+        detailPEm.setAttribute('class', 'movie_info_title');
+        detailPEm.textContent = name;
+        detailP.appendChild(detailPEm);
+        detailP.append(" : ");
+
+        for (let index=0; index<values.length; index+=1) {
+            let item = values[index]
+            let detailA = document.createElement('a');
+            detailA.setAttribute('class', 'movie_info_link');
+
+            if (name=='导演' || name=='演员' || name=='编剧') {
+                detailA.setAttribute('href', '/celebrity/' + item['id']);
+            } else if (name=='类型') {
+                detailA.setAttribute('href', '/category/' + item['id']);
+            } else if (name=='地区') {
+                detailA.setAttribute('href', '/area/' + item['id']);
+            } else {
+                detailA.setAttribute('href', '/404');
+            }
+
+            if (index == values.length-1) {
+                detailA.textContent = item['name'] ;
+            } else {
+                detailA.textContent = item['name'] + ",";
+            }
+
+            detailP.appendChild(detailA);
+        }
+
+    } else if (typeof values == 'string') {
+        let detailPEm = document.createElement('em');
+        detailPEm.setAttribute('class', 'movie_info_title');
+        detailPEm.textContent = name;
+        detailP.appendChild(detailPEm);
+
         detailP.append(" : ");
         detailP.append(values);
+    } else {
+
     }
 
 //    detailP.textContent = values;

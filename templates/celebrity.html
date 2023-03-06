@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %} {{ user_name }} Home {% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<div class="section">
+		<p id="celebrity_id_label" style="display: none;">{{ celebrity_id }}</p>
+		<div id="title" class="movie_info_title">
+		</div>
+		<div class="movie_info">
+
+			<div id="cover" class="movie_info_cover">
+			</div>
+			<div id="infos" class="movie_info_detail">
+			</div>
+		</div>
+
+<!--		<div id="intro" class="movie_intro">-->
+<!--			<p class="movie_intro_emphasis">简介: </p>-->
+
+<!--		</div>-->
+
+<!--		<div id="comment" class="movie_comment">-->
+<!--			<p class="movie_intro_emphasis">短评: </p>-->
+
+<!--		</div>-->
+
+	</div>
+
+	<script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
+	<script>
+		let celebrity_id = ""
+		let p_celebrity_id = document.getElementById("celebrity_id_label");
+		celebrity_id = p_celebrity_id.textContent
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+			httpGetCelebrityDetail(celebrity_id);
+		});
+
+	</script>
+{% endblock %}
