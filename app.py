@@ -19,7 +19,7 @@ env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 
-@app.errorhandler(/404)
+@app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
