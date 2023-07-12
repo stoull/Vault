@@ -1,7 +1,7 @@
 from flask import jsonify, json
 
 
-class ResponseManager:
+class ResponseManager():
 
     app = None
 

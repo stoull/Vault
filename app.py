@@ -13,16 +13,24 @@ from models.form import LoginForm
 from models.authorization import AuthManager
 from models.response_manager import ResponseManager
 
+from api.api import api_bp
+
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
 env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
+app.register_blueprint(api_bp, url_prefix='/api')
 
 
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+@app.before_request
+def before():
+    pass
+    # print("This is executed BEFORE each request.")
 
 
 @app.route("/login", methods=['GET', 'POST'])
