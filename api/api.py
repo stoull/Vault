@@ -1,4 +1,5 @@
 import sqlite3
+import werkzeug
 from flask import Flask, request, Response, render_template
 from flask import session
 from flask import Flask, redirect
@@ -19,6 +20,17 @@ app = Flask(__name__)
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 
+@app.errorhandler(werkzeug.exceptions.BadRequest)
+def handle_bad_request(e):
+    print(f"Blueprint api handle_bad_request: {e}")
+    return render_template('page_not_found.html'), 404
+
+@api_bp.route('/find_movie/', methods=['POST', 'GET'])
+def find_movie_action():
+    info = {}
+    resp = response_manager.json_response(info['user'])
+    return resp
+
 @api_bp.route('/login/', methods=['POST', 'GET'])
 def user_login_action():
     # application/x-www-form-urlencoded
@@ -32,12 +44,17 @@ def user_login_action():
 
     # application/json
     # json_content = request.json
+    username = ''
+    password = ''
+    if params is not None and 'username' in params:
+        username = params['username']
 
-    username = params['username'][0]
-    password = params['password'][0]
+    if  params is not None and 'password' in params:
+        password = params['password']
+
     LoginForm(request.form)
 
-    print(f"usernaem {username} pwd: {password}")
+    print(f"username {username} pwd: {password}")
 
     if password == "123456":
         # 登录成功

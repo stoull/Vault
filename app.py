@@ -1,5 +1,6 @@
 import sqlite3
 
+import werkzeug
 from flask import Flask, request, Response, render_template
 from jinja2 import Environment, PackageLoader
 from markupsafe import escape
@@ -25,6 +26,14 @@ app.register_blueprint(api_bp, url_prefix='/api')
 
 @app.errorhandler(404)
 def page_not_found(error):
+    print(f"Blueprint api page_not_found: {error}")
+    # can use abort(404) to invoke this method
+    return render_template('page_not_found.html'), 404
+
+@app.errorhandler(werkzeug.exceptions.BadRequest)
+def handle_bad_request(e):
+    print(f"Blueprint api handle_bad_request: {e}")
+    print(f"handle_bad_request: {e}")
     return render_template('page_not_found.html'), 404
 
 @app.before_request

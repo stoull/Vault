@@ -1,18 +1,19 @@
 from flask import jsonify, json, request
 
-import urllib
-
 def getRequestParamters(req):
     print(f"request.content_type: {request.content_type}")
     data = {}
-    if (request.content_type.startswith('application/json')):
+    if request.content_type is None:
+        if request.args is not None:
+            data = request.args.to_dict()
+        return data
+    elif (request.content_type.startswith('application/json')):
         data = request.get_data()
         return json.loads(data.decode("utf-8"))
     elif (request.content_type.startswith("application/x-www-form-urlencoded")):
-        # print(1)
-        # print(urllib.parse.parse_qs(request.get_data().decode("utf-8")))
-        # return parse_qs_plus(urllib.parse.parse_qs(request.get_data().decode("utf-8")))
-        return urllib.parse.parse_qs(request.get_data().decode("utf-8"))
+        if request.args is not None:
+            data = request.args.to_dict()
+        return data
     else:
         for key, value in request.form.items():
             if key.endswith('[]'):
