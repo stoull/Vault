@@ -1,6 +1,7 @@
 import sqlite3
 
 import werkzeug
+
 from flask import Flask, request, Response, render_template
 from jinja2 import Environment, PackageLoader
 from markupsafe import escape
@@ -24,23 +25,52 @@ response_manager = ResponseManager(app)
 app.register_blueprint(api_bp, url_prefix='/api')
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    print(f"Blueprint api page_not_found: {error}")
-    # can use abort(404) to invoke this method
-    return render_template('page_not_found.html'), 404
-
-@app.errorhandler(werkzeug.exceptions.BadRequest)
-def handle_bad_request(e):
-    print(f"Blueprint api handle_bad_request: {e}")
-    print(f"handle_bad_request: {e}")
-    return render_template('page_not_found.html'), 404
-
 @app.before_request
 def before():
     pass
     # print("This is executed BEFORE each request.")
 
+@app.errorhandler(404)
+def page_not_found(e):
+    print(f"app page_not_found: {e}")
+    if request.path.startswith('/api/'):
+        # 针对蓝图URL空间中的异常处理
+        response = e.get_response()
+        # replace the body with JSON
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
+    else:
+        # can use abort(404) to invoke this method
+        return render_template('page_not_found.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    print(f"app print internal_server_error {e}")
+    # 针对本蓝图URL空间中的500处理
+    response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
+    return response
+
+@app.errorhandler(werkzeug.exceptions.BadRequest)
+def handle_bad_request(e):
+    print(f"app handle_bad_request xxx : {e}")
+    if request.path.startswith('/api/'):
+        # 针对蓝图中的异常处理
+        response = e.get_response()
+        # replace the body with JSON
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
+    else:
+        return render_template('page_not_found.html'), 404
 
 @app.route("/login", methods=['GET', 'POST'])
 def login_page():
