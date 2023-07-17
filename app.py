@@ -22,7 +22,7 @@ app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324
 env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
-app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(api_bp, url_prefix='/api/v1')
 
 
 @app.before_request

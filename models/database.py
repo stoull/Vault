@@ -35,7 +35,7 @@ class DBManager(object):
  				phoneNumber VARCHAR(20),
  				introduction TEXT,
  				createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
-			
+
             # create movie table
             cur.execute('''CREATE TABLE movie(
             id INTEGER PRIMARY KEY,
