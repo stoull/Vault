@@ -16,6 +16,7 @@ from models.authorization import AuthManager
 from models.response_manager import ResponseManager
 
 from api.api import api_bp
+from api.api_images import image_bp
 
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
@@ -23,6 +24,7 @@ env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 app.register_blueprint(api_bp, url_prefix='/api/v1')
+app.register_blueprint(image_bp, url_prefix='/images')
 
 
 @app.before_request
@@ -33,7 +35,7 @@ def before():
 @app.errorhandler(404)
 def page_not_found(e):
     print(f"app page_not_found: {e}")
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') or request.path.startswith('/image/'):
         # 针对蓝图URL空间中的异常处理
         response = e.get_response()
         # replace the body with JSON
