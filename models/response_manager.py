@@ -15,3 +15,10 @@ class ResponseManager():
                                                       status=200,
                                                       mimetype='application/json;charset=utf-8')
         return response
+
+    @classmethod
+    def json_response_with_code(cls, dict_data, status_code):
+        response = ResponseManager.app.response_class(response=json.dumps(dict_data, ensure_ascii=False),
+                                                      status=status_code,
+                                                      mimetype='application/json;charset=utf-8')
+        return response
