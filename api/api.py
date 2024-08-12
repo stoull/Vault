@@ -34,6 +34,12 @@ def internal_server_error(e):
     response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
     return response
 
+@api_bp.route('/temperature-humidity', methods=['POST', 'GET'])
+def readTempAndHumidity():
+    temAndHum = readCurrentTemAndHumidity()
+    response = response_manager.json_response({'cmd': 'post', 'message': 'temperature-humidity', 'temand': temAndHum})
+    return response
+
 @api_bp.route('/movies/search', methods=['GET'])
 def search_movie():
     params = getRequestParamters(request)
