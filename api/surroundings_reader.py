@@ -10,7 +10,7 @@ def readTheLastRecord():
 	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
 	con = sqlite3.connect(DB_FILE)
 	cur = con.cursor()
-	cur.execute("SELECT * FROM surroundings ORDER BY create_date DESC LIMIT 1 OFFSET 0;")
+	cur.execute("SELECT * FROM surroundings ORDER BY id DESC LIMIT 1 OFFSET 0;")
 	datas = []
 
 	for data in cur.fetchall():
@@ -19,11 +19,10 @@ def readTheLastRecord():
 		for i in range(0, len(keyList)):
 			key = keyList[i]
 			itemDic[key] = data[i]
-			if len(itemDic) > 0:
-				datas.append(itemDic)
+		datas.append(itemDic)
 	con.commit()
 	cur.close()
-	return datas
+	return itemDic
 
 def readTheLastTemAndHumidity():
 	result = readTheLastRecord()

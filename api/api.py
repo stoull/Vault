@@ -41,7 +41,8 @@ def internal_server_error(e):
 @api_bp.route('/temperature-humidity', methods=['POST', 'GET'])
 def readTempAndHumidity():
     result_dic = readTheLastRecord()
-    response = response_manager.json_response({'cmd': 'post', 'message': 'temperature-humidity', 'result_dic': result_dic})
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 @api_bp.route('/movies/search', methods=['GET'])
