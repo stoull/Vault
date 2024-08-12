@@ -13,7 +13,7 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .adafruit_reader import readCurrentTemAndHumidity
+from .surroundings_reader import readTemAndHumidity, readTheLastRecord, readTheLastTemAndHumidity
 
 from flask import Blueprint
 
@@ -40,8 +40,8 @@ def internal_server_error(e):
 # 获取温湿度
 @api_bp.route('/temperature-humidity', methods=['POST', 'GET'])
 def readTempAndHumidity():
-    temAndHum = readCurrentTemAndHumidity()
-    response = response_manager.json_response({'cmd': 'post', 'message': 'temperature-humidity', 'temand': temAndHum})
+    result_dic = readTheLastRecord()
+    response = response_manager.json_response({'cmd': 'post', 'message': 'temperature-humidity', 'result_dic': result_dic})
     return response
 
 @api_bp.route('/movies/search', methods=['GET'])
