@@ -9,7 +9,7 @@ def readCurrentTemAndHumidity():
 	if humidity is not None and temperature is not None:
 		result = 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity)
 		print(result)
-		return 'Temp={0:0.1f}*  Humidity={1:0.1f}'
+		return result
 	# now = datetime.now()
 	# formatted_time = now.strftime("%m-%d %H:%M")
 	# with open('/home/pi/Shared/TemperatureAndHumidity.txt', 'a', encoding='utf-8') as the_file:

@@ -12,6 +12,9 @@ from models.authorization import AuthManager
 from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
+# 温湿度相关
+from .adafruit_reader import readCurrentTemAndHumidity
+
 from flask import Blueprint
 
 api_bp = Blueprint('api', __name__)
@@ -34,6 +37,7 @@ def internal_server_error(e):
     response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
     return response
 
+# 获取温湿度
 @api_bp.route('/temperature-humidity', methods=['POST', 'GET'])
 def readTempAndHumidity():
     temAndHum = readCurrentTemAndHumidity()
