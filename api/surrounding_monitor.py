@@ -4,6 +4,8 @@ import psutil
 
 DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 
+# DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
+
 def readTemAndHumidity():
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
 

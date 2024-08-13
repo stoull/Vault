@@ -13,7 +13,7 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .surroundings_reader import readTemAndHumidity, readTheLastRecord, readTheLastTemAndHumidity
+from .surroundings_reader import readTemAndHumidity, readTheLastRecord, readTheLastTemAndHumidity, readTheLastEightHoursRecord
 
 from flask import Blueprint
 
@@ -44,6 +44,14 @@ def readTempAndHumidity():
     response = response_manager.json_response(result_dic)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+@api_bp.route('/temperature-humidity/history', methods=['POST', 'GET'])
+def readTempAndHumidityHistory():
+    result_dic = readTheLastEightHoursRecord()
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 @api_bp.route('/movies/search', methods=['GET'])
 def search_movie():
