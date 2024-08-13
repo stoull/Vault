@@ -59,6 +59,12 @@ def readTheLastEightHoursRecord():
 	cpu_used_rates = [item_d["cpu_used_rate"] for item_d in datas]
 	createDates = [item_d["createDate"].strftime("%H:%M") for item_d in datas]
 
+	temperatures.reverse()
+	humidities.reverse()
+	cup_temps.reverse()
+	cpu_used_rates.reverse()
+	createDates.reverse()
+
 	return {
 		"labels": createDates,
 		"temp": temperatures,
