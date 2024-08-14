@@ -30,7 +30,7 @@ def readTheLastEightHoursRecord():
 	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
 	con = sqlite3.connect(DB_FILE)
 	cur = con.cursor()
-	cur.execute("SELECT * FROM surroundings ORDER BY id DESC LIMIT 96 OFFSET 0;")
+	cur.execute("SELECT * FROM surroundings ORDER BY id DESC LIMIT 288 OFFSET 0;")
 	datas = []
 
 	for data in cur.fetchall():
