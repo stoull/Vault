@@ -7,8 +7,8 @@ import requests
 DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
 WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
-# LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
-LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
+LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
+# LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
 
 def readTemAndHumidity():
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
@@ -92,7 +92,9 @@ def insertARecord(params):
     con = sqlite3.connect(DB_FILE)
     cur = con.cursor()
     cur.execute(
-        "INSERT INTO surroundings(location, temperature, humidity, cup_temp, cpu_used_rate, sys_uptime, sys_runtime, weather, weather_code, outdoors_temp) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO surroundings(location, temperature, humidity, cup_temp,"
+        " cpu_used_rate, sys_uptime, sys_runtime, weather, weather_code, outdoors_temp)"
+        " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         params)
     con.commit()
     cur.close()

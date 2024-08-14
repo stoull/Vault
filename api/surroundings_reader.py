@@ -5,6 +5,10 @@ import pytz
 
 from .surrounding_monitor import readTemAndHumidity, DB_FILE
 
+KEYLIST = ["id", "location", "temperature", "humidity", "cup_temp",
+		   "cpu_used_rate", "sys_uptime", "sys_runtime", "weather",
+		   "weather_code", "outdoors_temp", "createDate"]
+
 def readTemAndHumidity():
     return readTemAndHumidity()
 
@@ -16,10 +20,9 @@ def readTheLastRecord():
 	datas = []
 
 	for data in cur.fetchall():
-		keyList = ["id", "temperature", "humidity", "cup_temp", "cpu_used_rate", "sys_uptime", "sys_runtime", "createDate"]
 		itemDic = {}
-		for i in range(0, len(keyList)):
-			key = keyList[i]
+		for i in range(0, len(KEYLIST)):
+			key = KEYLIST[i]
 			itemDic[key] = data[i]
 		datas.append(itemDic)
 	con.commit()
@@ -34,10 +37,9 @@ def readTheLastEightHoursRecord():
 	datas = []
 
 	for data in cur.fetchall():
-		keyList = ["id", "temperature", "humidity", "cup_temp", "cpu_used_rate", "sys_uptime", "sys_runtime", "createDate"]
 		itemDic = {}
-		for i in range(0, len(keyList)):
-			key = keyList[i]
+		for i in range(0, len(KEYLIST)):
+			key = KEYLIST[i]
 			itemDic[key] = data[i]
 			if key is 'createDate':
 				utc_time_str = data[i]
