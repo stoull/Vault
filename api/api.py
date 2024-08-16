@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, re
 import werkzeug
 from flask import Flask, request, Response, render_template, abort
 from flask import session
@@ -13,7 +13,7 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .surroundings_reader import readTemAndHumidity, readTheLastRecord, readTheLastTemAndHumidity, readTheLastEightHoursRecord
+from .surroundings_reader import readTheLastRecord, readTheLastEightHoursRecord, readHomePodRecord, insertAHomePodRecord
 
 from flask import Blueprint
 
@@ -35,6 +35,34 @@ def internal_server_error(e):
     print(f"bleu print internal_server_error {e}")
     # 针对本蓝图URL空间中的500处理
     response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
+    return response
+
+@api_bp.route('/temperature-humidity/homepod', methods=['POST'])
+def insert_home_pod_record():
+    params = getRequestParamters(request)
+    temp = -999
+    humidity = -999
+    if params is not None and 'temp' in params:
+        temp_str = params['temp']
+        temperature_str = '27.3°C'
+        temp = float(re.sub(r'[^\d.]+', '', temp_str))
+    if params is not None and 'humidity' in params:
+        humidity = params['humidity']
+
+    result_dic = {"result": 1}
+    if temp > -60 and humidity > -60:
+        insertAHomePodRecord([temp, humidity])
+    else:
+        result_dic = {"result": 0}
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@api_bp.route('/temperature-humidity/homepod-records', methods=['GET'])
+def read_home_pod_records():
+    result_dic = readHomePodRecord()
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 # 获取温湿度

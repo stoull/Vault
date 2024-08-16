@@ -99,6 +99,26 @@ def insertARecord(params):
     con.commit()
     cur.close()
 
+def initialDataBaseHomePod():
+    db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
+    con = sqlite3.connect(db_file2)
+    cur = con.cursor()
+    cur.execute('''CREATE TABLE sensor(
+                    id INTEGER PRIMARY KEY,
+                    temperature NUMERIC,
+                    humidity NUMERIC,
+                    createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    con.commit()
+    cur.close()
+
+def insertAHomePodRecord(params):
+    db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
+    con = sqlite3.connect(db_file2)
+    cur = con.cursor()
+    cur.execute(
+        "INSERT INTO sensor(temperature, humidity) values(?, ?)", params)
+    con.commit()
+    cur.close()
 
 # 创建一个存储的db
 def initialDataBase():
