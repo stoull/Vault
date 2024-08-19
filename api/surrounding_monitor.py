@@ -6,7 +6,10 @@ import requests
 
 DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
-WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
+# 心知天气 https://www.seniverse.com
+# WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
+# open weather
+WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?lat=22.560780204311204&lon=113.87890358356606&appid=20c7b818bbb2f911cda86ce2798a91b0'
 LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 # LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
 
@@ -62,9 +65,16 @@ def get_cpu_temperature():
 # 获取室外温度
 def get_outside_weather_now():
     place_weather = {
-        'text': '--',
-        'code': '0',
-        'temperature': '0'
+        'weather': '--',
+        'weather_des': '--',
+        'weather_code': '0',
+        'weather_icon': '--',
+        'outdoors_temp': '0',
+        'outdoors_feels_like': '0',
+        'outdoors_temp_min': '0',
+        'outdoors_temp_max': '0',
+        'outdoors_pressure': '0',
+        'outdoors_humidity': '0'
     }
     try:
         response = requests.get(WEATHER_URL, timeout=5)
@@ -72,9 +82,20 @@ def get_outside_weather_now():
 
         # 如果请求成功，处理响应数据
         res = response.json()
-        # print('成功获取数据:', res)
-        now = res['results'][0]['now']
-        return now
+        weather = res['weather'][0]
+        main_info = res['main']
+        place_weather['weather'] = weather['main']
+        place_weather['weather_des'] = weather['description']
+        place_weather['weather_code'] = weather['id']
+        place_weather['weather_icon'] = weather['icon']
+
+        place_weather['outdoors_temp'] = round(main_info['temp']*0.1, 2)
+        place_weather['outdoors_feels_like'] = round(main_info['feels_like']*0.1, 2)
+        place_weather['outdoors_temp_min'] = round(main_info['temp_min']*0.1, 2)
+        place_weather['outdoors_temp_max'] = round(main_info['temp_max']*0.1, 2)
+        place_weather['outdoors_pressure'] = main_info['pressure']
+        place_weather['outdoors_humidity'] = main_info['humidity']
+        return place_weather
     except requests.exceptions.Timeout:
         # print('请求超时，请稍后重试。')
         return place_weather
@@ -93,8 +114,10 @@ def insertARecord(params):
     cur = con.cursor()
     cur.execute(
         "INSERT INTO surroundings(location, temperature, humidity, cup_temp,"
-        " cpu_used_rate, sys_uptime, sys_runtime, weather, weather_code, outdoors_temp)"
-        " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        " cpu_used_rate, sys_uptime, sys_runtime, weather, weather_code,"
+        " weather_des, weather_icon, outdoors_temp, outdoors_feels_like, outdoors_temp_min,"
+        " outdoors_temp_max, outdoors_pressure, outdoors_humidity)"
+        " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         params)
     con.commit()
     cur.close()
@@ -137,7 +160,14 @@ def initialDataBase():
                     sys_runtime INTEGER,
                     weather VARCHAR(50),
                     weather_code INTEGER,
+                    weather_des VARCHAR(50),
+                    weather_icon VARCHAR(10),
                     outdoors_temp NUMERIC,
+                    outdoors_feels_like NUMERIC,
+                    outdoors_temp_min NUMERIC,
+                    outdoors_temp_max NUMERIC,
+                    outdoors_pressure NUMERIC,
+                    outdoors_humidity NUMERIC,
                     createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     con.commit()
     cur.close()
@@ -152,9 +182,17 @@ if __name__ == "__main__":
 
     # 获取室外温度
     now_weather = get_outside_weather_now()
-    weather_text = now_weather['text']
-    weather_code = now_weather['code']
-    weather_temp = now_weather['temperature']
+    weather = now_weather['weather']
+    weather_des = now_weather['weather_des']
+    weather_code = now_weather['weather_code']
+    weather_icon = now_weather['weather_icon']
+    outdoors_temp = now_weather['outdoors_temp']
+    outdoors_feels_like = now_weather['outdoors_feels_like']
+    outdoors_temp_min = now_weather['outdoors_temp_min']
+    outdoors_temp_max = now_weather['outdoors_temp_max']
+    outdoors_pressure = now_weather['outdoors_pressure']
+    outdoors_humidity = now_weather['outdoors_humidity']
+
     # print(f"室外天气: {now_weather}")
     #
     # print(f"记录的地点: {LOCATION}")
@@ -167,6 +205,8 @@ if __name__ == "__main__":
     # 创建数据库
     # initialDataBase()
 
+    current_time = datetime.now()
+
     insertARecord([LOCATION,
                    tem,
                    humi,
@@ -174,7 +214,14 @@ if __name__ == "__main__":
                    cpu_usage,
                    system_uptime,
                    syste_runtime,
-                   weather_text,
+                   weather,
                    weather_code,
-                   weather_temp
+                   weather_des,
+                   weather_icon,
+                   outdoors_temp,
+                   outdoors_feels_like,
+                   outdoors_temp_min,
+                   outdoors_temp_max,
+                   outdoors_pressure,
+                   outdoors_humidity
                    ])

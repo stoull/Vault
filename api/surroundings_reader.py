@@ -6,8 +6,9 @@ import pytz
 from .surrounding_monitor import readTemAndHumidity, DB_FILE
 
 KEYLIST = ["id", "location", "temperature", "humidity", "cup_temp",
-		   "cpu_used_rate", "sys_uptime", "sys_runtime", "weather",
-		   "weather_code", "outdoors_temp", "createDate"]
+		   "cpu_used_rate", "sys_uptime", "sys_runtime", "weather", "weather_code",
+		   "weather_des", "weather_icon",  "outdoors_temp", "outdoors_feels_like",
+		   "outdoors_temp_min", "outdoors_temp_max", "outdoors_pressure", "outdoors_humidity", "createDate"]
 
 def readTemAndHumidity():
     return readTemAndHumidity()
@@ -42,8 +43,11 @@ def readTheLastEightHoursRecord():
 			key = KEYLIST[i]
 			itemDic[key] = data[i]
 			if key is 'createDate':
-				utc_time_str = data[i]
-				naive_datetime = datetime.strptime(utc_time_str, '%Y-%m-%d %H:%M:%S')
+				time_str = data[i]
+				if '.' in time_str:
+					naive_datetime = datetime.fromisoformat(time_str)  # 包含微秒的情况
+				else:
+					naive_datetime = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")  # 不包含微秒的情况
 				# 创建 UTC 时区对象
 				utc_timezone = pytz.utc
 				# 将 naive datetime 转换为 UTC datetime
