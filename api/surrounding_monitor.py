@@ -1,7 +1,7 @@
 import sqlite3, os, time, platform, json
 import Adafruit_DHT
 import psutil
-
+from datetime import datetime
 import requests
 
 DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
@@ -62,6 +62,12 @@ def get_cpu_temperature():
         print("此功能在非Linux系统上不可用")
         return 0
 
+def kelvin_to_celsius(kelvin):
+    if kelvin < 0:
+        raise 0
+    celsius = kelvin - 273.15
+    return celsius
+
 # 获取室外温度
 def get_outside_weather_now():
     place_weather = {
@@ -88,11 +94,10 @@ def get_outside_weather_now():
         place_weather['weather_des'] = weather['description']
         place_weather['weather_code'] = weather['id']
         place_weather['weather_icon'] = weather['icon']
-
-        place_weather['outdoors_temp'] = round(main_info['temp']*0.1, 2)
-        place_weather['outdoors_feels_like'] = round(main_info['feels_like']*0.1, 2)
-        place_weather['outdoors_temp_min'] = round(main_info['temp_min']*0.1, 2)
-        place_weather['outdoors_temp_max'] = round(main_info['temp_max']*0.1, 2)
+        place_weather['outdoors_temp'] = round(kelvin_to_celsius(main_info['temp']), 2)
+        place_weather['outdoors_feels_like'] = round(kelvin_to_celsius(main_info['outdoors_feels_like']), 2)
+        place_weather['outdoors_temp_min'] = round(kelvin_to_celsius(main_info['outdoors_temp_min']), 2)
+        place_weather['outdoors_temp_max'] = round(kelvin_to_celsius(main_info['outdoors_temp_max']), 2)
         place_weather['outdoors_pressure'] = main_info['pressure']
         place_weather['outdoors_humidity'] = main_info['humidity']
         return place_weather
