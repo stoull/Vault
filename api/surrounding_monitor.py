@@ -95,9 +95,9 @@ def get_outside_weather_now():
         place_weather['weather_code'] = weather['id']
         place_weather['weather_icon'] = weather['icon']
         place_weather['outdoors_temp'] = round(kelvin_to_celsius(main_info['temp']), 2)
-        place_weather['outdoors_feels_like'] = round(kelvin_to_celsius(main_info['outdoors_feels_like']), 2)
-        place_weather['outdoors_temp_min'] = round(kelvin_to_celsius(main_info['outdoors_temp_min']), 2)
-        place_weather['outdoors_temp_max'] = round(kelvin_to_celsius(main_info['outdoors_temp_max']), 2)
+        place_weather['outdoors_feels_like'] = round(kelvin_to_celsius(main_info['feels_like']), 2)
+        place_weather['outdoors_temp_min'] = round(kelvin_to_celsius(main_info['temp_min']), 2)
+        place_weather['outdoors_temp_max'] = round(kelvin_to_celsius(main_info['temp_max']), 2)
         place_weather['outdoors_pressure'] = main_info['pressure']
         place_weather['outdoors_humidity'] = main_info['humidity']
         return place_weather
