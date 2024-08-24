@@ -9,7 +9,7 @@ DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # 心知天气 https://www.seniverse.com
 # WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
 # open weather
-WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?lat=22.560780204311204&lon=113.87890358356606&appid=20c7b818bbb2f911cda86ce2798a91b0'
+WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?lat=22.560780204311204&lon=113.87890358356606&appid=20c7b818bbb2f911cda86ce2798a91b0&lang=zh'
 LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 # LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
 
@@ -83,7 +83,7 @@ def get_outside_weather_now():
         'outdoors_humidity': '0'
     }
     try:
-        response = requests.get(WEATHER_URL, timeout=5)
+        response = requests.get(WEATHER_URL, timeout=30)
         response.raise_for_status()  # 检查请求是否成功（状态码为200-299）
 
         # 如果请求成功，处理响应数据
