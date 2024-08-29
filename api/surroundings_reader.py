@@ -1,6 +1,7 @@
 
 import sqlite3, os, time, platform
 from datetime import datetime
+from .api_helper import is_date_format_valid
 import pytz
 
 from .surrounding_monitor import readTemAndHumidity, DB_FILE
@@ -29,6 +30,72 @@ def readTheLastRecord():
 	con.commit()
 	cur.close()
 	return itemDic
+
+def readRecordsWithPeriod(startDate, endDate):
+	if not is_date_format_valid(startDate)  or not is_date_format_valid(endDate):
+		return {
+		"labels": [],
+		"temp": [],
+		"humi": [],
+		"cuptemp": [],
+		"cpu_used_rates": []
+		}
+
+	selectSQL = f"""
+	    SELECT *
+	    FROM (
+	        SELECT *, DATETIME(createDate, '+8 hours') AS localTime
+	        FROM surroundings
+	    )
+	    WHERE localTime BETWEEN '{startDate}' AND '{endDate}';
+	"""
+	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
+	con = sqlite3.connect(DB_FILE)
+	cur = con.cursor()
+	cur.execute(selectSQL)
+	datas = []
+
+	for data in cur.fetchall():
+		itemDic = {}
+		for i in range(0, len(KEYLIST)):
+			key = KEYLIST[i]
+			itemDic[key] = data[i]
+			if key is 'createDate':
+				time_str = data[i]
+				if '.' in time_str:
+					naive_datetime = datetime.fromisoformat(time_str)  # 包含微秒的情况
+				else:
+					naive_datetime = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")  # 不包含微秒的情况
+				# 创建 UTC 时区对象
+				utc_timezone = pytz.utc
+				# 将 naive datetime 转换为 UTC datetime
+				utc_datetime = utc_timezone.localize(naive_datetime)
+				target_timezone = pytz.timezone('Asia/Shanghai')
+				local_time = utc_datetime.astimezone(target_timezone)
+				itemDic[key] = local_time
+		datas.append(itemDic)
+	con.commit()
+	cur.close()
+
+	temperatures = [item_d["temperature"] for item_d in datas]
+	humidities = [item_d["humidity"] for item_d in datas]
+	cup_temps = [item_d["cup_temp"] for item_d in datas]
+	cpu_used_rates = [item_d["cpu_used_rate"] for item_d in datas]
+	createDates = [item_d["createDate"].strftime("%H:%M") for item_d in datas]
+
+	temperatures.reverse()
+	humidities.reverse()
+	cup_temps.reverse()
+	cpu_used_rates.reverse()
+	createDates.reverse()
+
+	return {
+		"labels": createDates,
+		"temp": temperatures,
+		"humi": humidities,
+		"cuptemp": cup_temps,
+		"cpu_used_rates": cpu_used_rates
+	}
 
 def readTheLastEightHoursRecord():
 	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')

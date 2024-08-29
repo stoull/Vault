@@ -13,7 +13,8 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .surroundings_reader import readTheLastRecord, readTheLastEightHoursRecord, readHomePodRecord, insertAHomePodRecord
+from .surroundings_reader import readTheLastRecord, readTheLastEightHoursRecord, readRecordsWithPeriod, readHomePodRecord, insertAHomePodRecord
+from .api_helper import is_date_format_valid
 
 from flask import Blueprint
 
@@ -80,6 +81,19 @@ def readTempAndHumidityHistory():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@api_bp.route('/surroundings/history', methods=['POST', 'GET'])
+def readSurroundingsRecordsWithPeriod():
+    params = getRequestParamters(request)
+    result_dic = {}
+    if 'startDate' not in params or 'endDate' not in params:
+        result_dic = {'message': 'Must have startDate and endDate'}
+    elif not is_date_format_valid(params['startDate']) or not is_date_format_valid(params['endDate']):
+        result_dic = {'message': 'The dateformat is invalid'}
+    else:
+        result_dic = readRecordsWithPeriod(params['startDate'], params['endDate'])
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @api_bp.route('/movies/search', methods=['GET'])
 def search_movie():
