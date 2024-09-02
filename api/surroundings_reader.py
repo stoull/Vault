@@ -34,11 +34,12 @@ def readTheLastRecord():
 def readRecordsWithPeriod(startDate, endDate):
 	if not is_date_format_valid(startDate)  or not is_date_format_valid(endDate):
 		return {
-		"labels": [],
-		"temp": [],
-		"humi": [],
-		"cuptemp": [],
-		"cpu_used_rates": []
+			"labels": [],
+			"temp": [],
+			"humi": [],
+			"cuptemp": [],
+			"cpu_used_rates": [],
+			"outdoors_temp": []
 		}
 
 	selectSQL = f"""
@@ -82,13 +83,15 @@ def readRecordsWithPeriod(startDate, endDate):
 	cup_temps = [item_d["cup_temp"] for item_d in datas]
 	cpu_used_rates = [item_d["cpu_used_rate"] for item_d in datas]
 	createDates = [item_d["createDate"].strftime("%H:%M") for item_d in datas]
+	outdoors_temp = [item_d["outdoors_temp"] for item_d in datas]
 
 	return {
 		"labels": createDates,
 		"temp": temperatures,
 		"humi": humidities,
 		"cuptemp": cup_temps,
-		"cpu_used_rates": cpu_used_rates
+		"cpu_used_rates": cpu_used_rates,
+		"outdoors_temp": outdoors_temp
 	}
 
 def readTheLastEightHoursRecord():
