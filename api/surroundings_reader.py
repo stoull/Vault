@@ -34,11 +34,12 @@ def readTheLastRecord():
 def readRecordsWithPeriod(startDate, endDate):
 	if not is_date_format_valid(startDate)  or not is_date_format_valid(endDate):
 		return {
-		"labels": [],
-		"temp": [],
-		"humi": [],
-		"cuptemp": [],
-		"cpu_used_rates": []
+			"labels": [],
+			"temp": [],
+			"humi": [],
+			"cuptemp": [],
+			"cpu_used_rates": [],
+			"outdoors_temp": []
 		}
 
 	selectSQL = f"""
@@ -82,13 +83,15 @@ def readRecordsWithPeriod(startDate, endDate):
 	cup_temps = [item_d["cup_temp"] for item_d in datas]
 	cpu_used_rates = [item_d["cpu_used_rate"] for item_d in datas]
 	createDates = [item_d["createDate"].strftime("%H:%M") for item_d in datas]
+	outdoors_temp = [item_d["outdoors_temp"] for item_d in datas]
 
 	return {
 		"labels": createDates,
 		"temp": temperatures,
 		"humi": humidities,
 		"cuptemp": cup_temps,
-		"cpu_used_rates": cpu_used_rates
+		"cpu_used_rates": cpu_used_rates,
+		"outdoors_temp": outdoors_temp
 	}
 
 def readTheLastEightHoursRecord():
@@ -138,6 +141,47 @@ def readTheLastEightHoursRecord():
 		"humi": humidities,
 		"cuptemp": cup_temps,
 		"cpu_used_rates": cpu_used_rates
+	}
+
+def insertAirConditionerRecord(params):
+	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
+	con = sqlite3.connect(DB_FILE)
+	cur = con.cursor()
+	# (location, temperature, model, description)
+	cur.execute(
+		"INSERT INTO airconditioner(location, temperature, model, description)"
+		" VALUES(?, ?, ?, ?)", params)
+	con.commit()
+	cur.close()
+
+def readAirConditionerRecord():
+	db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
+	con = sqlite3.connect(db_file2)
+	cur = con.cursor()
+	cur.execute("SELECT * FROM airconditioner ORDER BY id DESC LIMIT 20 OFFSET 0;")
+	datas = []
+
+	home_pod_keys = ["id", "location", "temperature", "model", "description", "createDate"];
+	for data in cur.fetchall():
+		itemDic = {}
+		for i in range(0, len(home_pod_keys)):
+			key = home_pod_keys[i]
+			itemDic[key] = data[i]
+			if key is 'createDate':
+				utc_time_str = data[i]
+				naive_datetime = datetime.strptime(utc_time_str, '%Y-%m-%d %H:%M:%S')
+				# 创建 UTC 时区对象
+				utc_timezone = pytz.utc
+				# 将 naive datetime 转换为 UTC datetime
+				utc_datetime = utc_timezone.localize(naive_datetime)
+				target_timezone = pytz.timezone('Asia/Shanghai')
+				local_time = utc_datetime.astimezone(target_timezone)
+				itemDic[key] = local_time
+		datas.append(itemDic)
+	con.commit()
+	cur.close()
+	return {
+		"data": datas
 	}
 
 def insertAHomePodRecord(params):

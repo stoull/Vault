@@ -13,8 +13,11 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .surroundings_reader import readTheLastRecord, readTheLastEightHoursRecord, readRecordsWithPeriod, readHomePodRecord, insertAHomePodRecord
+from .surroundings_reader import readTheLastRecord, readTheLastEightHoursRecord, readRecordsWithPeriod, readHomePodRecord, insertAHomePodRecord, insertAirConditionerRecord, readAirConditionerRecord
 from .api_helper import is_date_format_valid
+
+# 人体检测相关
+from .screen_control import ScreenControl
 
 from flask import Blueprint
 
@@ -37,6 +40,63 @@ def internal_server_error(e):
     # 针对本蓝图URL空间中的500处理
     response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
     return response
+
+@api_bp.route('/temperature-humidity/airconditioner', methods=['GET'])
+def read_airconditioner_record():
+    result_dic = readAirConditionerRecord()
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@api_bp.route('/temperature-humidity/airconditioner', methods=['POST'])
+def insert_airconditioner_record(params):
+    params = getRequestParamters(request)
+
+    location = 'HOME'
+    temperature = 25
+    model = '1'
+    description = ''
+    if params is not None:
+        if 'location' in params:
+            location = params['location']
+        if 'temperature' in params:
+            temperature = params['temperature']
+        if 'model' in params:
+            model = params['model']
+        if 'description' in params:
+            description = params['description']
+        insertAirConditionerRecord([location, temperature, model, description])
+        result_dic = {"result": 1, "message": 'success'}
+    else:
+        result_dic = {"result": 0, "message": 'fail'}
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@api_bp.route('/pi-control/screen', methods=['POST'])
+def pi_control_screen_action():
+    params = getRequestParamters(request)
+    result_dic = {}
+    if 'state' not in params:
+        abort(400)
+    else:
+        state = params['state']
+        if state == 'on':
+            state = ScreenControl.turn_screen_on()
+        elif state == 'off':
+            state = ScreenControl.turn_screen_off()
+        result_dic = {"result": state}
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+@api_bp.route('/pi-control/screen', methods=['GET'])
+def pi_control_screen_state():
+    state = ScreenControl.current_screen_state()
+    state_result = {"state": state}
+    response = response_manager.json_response(state_result)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 @api_bp.route('/temperature-humidity/homepod', methods=['POST'])
 def insert_home_pod_record():
