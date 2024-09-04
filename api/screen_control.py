@@ -4,7 +4,7 @@ from datetime import datetime
 from subprocess import run
 
 # External module imports
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 class ScreenControl:
     def __init__(self, timeout=300):  # 默认超时时间为300秒（5分钟）
@@ -66,6 +66,7 @@ class ScreenControl:
 
     @classmethod
     def turn_screen_off(cls):
+        print("turn_screen_off xxx ")
         result = run('vcgencmd display_power 0', shell=True, capture_output=True, text=True)
         if result.stdout == 'display_power=0\n':
             return True
@@ -74,6 +75,7 @@ class ScreenControl:
 
     @classmethod
     def turn_screen_on(cls):
+        print("turn_screen_on xxx ")
         result = run('vcgencmd display_power 1', shell=True, capture_output=True, text=True)
         if result.stdout == 'display_power=1\n':
             return True
@@ -88,33 +90,33 @@ class ScreenControl:
         else:
             return False
 
-class PIRDetector:
-    def __init__(self, mode=GPIO.BCM, pin=4):  # 默认超时时间为300秒（5分钟）
-        GPIO.setmode(mode)
-        GPIO.setup(pin, GPIO.IN)
-        self.mode = mode
-        self.pin = pin
-        self.screen_controller = None
-
-    def start_detect(self):
-        self.screen_controller = ScreenControl()
-        self.screen_controller.start()
-        try:
-            while True:
-                current_datetime = datetime.now()
-                cDateStr = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-                value = GPIO.input(self.pin)
-#                 print(f"{cDateStr} value: ", value)
-                self.screen_controller.update_detection(value)
-                time.sleep(1)
-        except KeyboardInterrupt:
-            self.screen_controller.stop()
-            print("程序被用户中断")
-        finally:
-            # 清理 GPIO 设置
-            GPIO.cleanup()
+# class PIRDetector:
+#     def __init__(self, mode=GPIO.BCM, pin=4):  # 默认超时时间为300秒（5分钟）
+#         GPIO.setmode(mode)
+#         GPIO.setup(pin, GPIO.IN)
+#         self.mode = mode
+#         self.pin = pin
+#         self.screen_controller = None
+#
+#     def start_detect(self):
+#         self.screen_controller = ScreenControl()
+#         self.screen_controller.start()
+#         try:
+#             while True:
+#                 current_datetime = datetime.now()
+#                 cDateStr = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+#                 value = GPIO.input(self.pin)
+# #                 print(f"{cDateStr} value: ", value)
+#                 self.screen_controller.update_detection(value)
+#                 time.sleep(1)
+#         except KeyboardInterrupt:
+#             self.screen_controller.stop()
+#             print("程序被用户中断")
+#         finally:
+#             # 清理 GPIO 设置
+#             GPIO.cleanup()
 
 if __name__ == "__main__":
     print('检测中.......按Ctrl+C退出')
-    detector = PIRDetector()
-    detector.start_detect()
+    # detector = PIRDetector()
+    # detector.start_detect()
