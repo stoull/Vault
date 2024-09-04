@@ -1,7 +1,7 @@
 import sqlite3, os
 
-# DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
-DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
+DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
+# DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
 def initialDataBaseHomePod():
     db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
     con = sqlite3.connect(db_file2)
