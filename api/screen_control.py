@@ -9,14 +9,25 @@ import RPi.GPIO as GPIO
 from .smartclock_db_operator import insert_screen_action
 
 class ScreenControl:
-    def __init__(self, timeout=60):  # 默认超时时间为300秒（5分钟）
+    def __init__(self):
         self.detectedX = 0
         self.last_detection_time = time.time()
-        self.timeout = timeout
+
+        self.timeout = self.get_timeout()
         screen_state_int = self.current_screen_state()
         self.screen_on = screen_state_int == 1
         self.running = False
         self.timer_thread = None
+
+    def get_timeout(self):
+        current_time = datetime.now().time()
+        night_start = time(22, 0)  # 22:00
+        night_end = time(6, 0)  # 06:00
+
+        if night_start <= current_time or current_time < night_end:
+            return 60  # 1分钟 (60秒)
+        else:
+            return 180  # 3分钟 (180秒)
 
     def start(self):
         self.running = True
