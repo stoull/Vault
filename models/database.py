@@ -36,8 +36,7 @@ class DBManager(object):
  				introduction TEXT,
  				createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
 
-            # create movie table
-            cur.execute('''CREATE TABLE movie(
+			cur.execute('''CREATE TABLE movie(
             id INTEGER PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
             directors VARCHAR(200),
@@ -62,7 +61,7 @@ class DBManager(object):
             lastWatchDate DATETIME,
             lastWatchUser VARCHAR(40))''')
 
-            cur.execute('''CREATE TABLE director(
+			cur.execute('''CREATE TABLE director(
             id INTEGER PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             gender BOOLEAN,
@@ -79,8 +78,7 @@ class DBManager(object):
             intro TEXT,
             photoUrl VARCHAR(250)
             )''')
-
-            cur.execute('''CREATE TABLE actor(
+			cur.execute('''CREATE TABLE actor(
             id INTEGER PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             gender BOOLEAN,
@@ -97,8 +95,7 @@ class DBManager(object):
             intro TEXT,
             photoUrl VARCHAR(250)
             )''')
-
-            cur.execute('''CREATE TABLE scenarist(
+			cur.execute('''CREATE TABLE scenarist(
             id INTEGER PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             gender BOOLEAN,
@@ -115,20 +112,17 @@ class DBManager(object):
             intro TEXT,
             photoUrl VARCHAR(250)
             )''')
-
-            cur.execute('''CREATE TABLE area(
+			cur.execute('''CREATE TABLE area(
             id INTEGER PRIMARY KEY,
             name VARCHAR(20) NOT NULL,
             unique (name)
             )''')
-
-            cur.execute('''CREATE TABLE type(
+			cur.execute('''CREATE TABLE type(
             id INTEGER PRIMARY KEY,
             name VARCHAR(40) NOT NULL,
             unique (name)
             )''')
-
-            cur.execute('''CREATE TABLE tag(
+			cur.execute('''CREATE TABLE tag(
             id INTEGER PRIMARY KEY,
             name VARCHAR(40) NOT NULL,
             unique (name)
@@ -139,71 +133,61 @@ class DBManager(object):
 	            name VARCHAR(30) NOT NULL,
 	            unique (name)
 	            )''')
-
-            cur.execute('''CREATE TABLE movie_director(
+			cur.execute('''CREATE TABLE movie_director(
             movie_id INTEGER ,
             director_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_director_id FOREIGN KEY (director_id) REFERENCES director(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_actor(
+			cur.execute('''CREATE TABLE movie_actor(
             movie_id INTEGER,
             actor_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_actor_id FOREIGN KEY (actor_id) REFERENCES actor(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_scenarist(
+			cur.execute('''CREATE TABLE movie_scenarist(
             movie_id INTEGER,
             scenarist_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_scenarist_id FOREIGN KEY (scenarist_id) REFERENCES scenarist(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_area(
+			cur.execute('''CREATE TABLE movie_area(
             movie_id INTEGER,
             area_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_area_id FOREIGN KEY (area_id) REFERENCES area(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_type(
+			cur.execute('''CREATE TABLE movie_type(
             movie_id INTEGER,
             type_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_type_id FOREIGN KEY (type_id) REFERENCES type(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_tag(
+			cur.execute('''CREATE TABLE movie_tag(
             movie_id INTEGER,
             tag_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_tag_id FOREIGN KEY (tag_id) REFERENCES tag(id)
             )''')
-
-            cur.execute('''CREATE TABLE movie_language(
+			cur.execute('''CREATE TABLE movie_language(
             movie_id INTEGER,
             language_id INTEGER,
             CONSTRAINT FK_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id),
             CONSTRAINT FK_language_id FOREIGN KEY (language_id) REFERENCES language(id)
             )''')
-
-            cur.execute('''CREATE TABLE diector_area(
+			cur.execute('''CREATE TABLE diector_area(
             diector_id INTEGER,
             area_id INTEGER,
             CONSTRAINT FK_diector_id FOREIGN KEY (diector_id) REFERENCES diector(id),
             CONSTRAINT FK_type_id FOREIGN KEY (area_id) REFERENCES area(id)
             )''')
-
-            cur.execute('''CREATE TABLE scenarist_area(
+			cur.execute('''CREATE TABLE scenarist_area(
             scenarist_id INTEGER,
             area_id INTEGER,
             CONSTRAINT FK_diector_id FOREIGN KEY (scenarist_id) REFERENCES scenarist(id),
             CONSTRAINT FK_type_id FOREIGN KEY (area_id) REFERENCES area(id)
             )''')
-
-            cur.execute('''CREATE TABLE actor_area(
+			cur.execute('''CREATE TABLE actor_area(
             actor_id INTEGER,
             area_id INTEGER,
             CONSTRAINT FK_diector_id FOREIGN KEY (actor_id) REFERENCES actor(id),

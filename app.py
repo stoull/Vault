@@ -17,6 +17,7 @@ from models.response_manager import ResponseManager
 
 from api.api import api_bp
 from api.api_images import image_bp
+from api.api_smartclock import smart_clock_bp
 
 app = Flask(__name__)
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
@@ -25,7 +26,7 @@ auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 app.register_blueprint(api_bp, url_prefix='/api/v1')
 app.register_blueprint(image_bp, url_prefix='/images')
-
+app.register_blueprint(smart_clock_bp, url_prefix='/api/smart-clock')
 
 @app.before_request
 def before():

@@ -1,4 +1,4 @@
-import sqlite3, os, time, platform, json
+import sqlite3, os, time, platform
 import Adafruit_DHT
 import psutil
 from datetime import datetime
@@ -127,57 +127,6 @@ def insertARecord(params):
     con.commit()
     cur.close()
 
-def initialDataBaseHomePod():
-    db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
-    con = sqlite3.connect(db_file2)
-    cur = con.cursor()
-    cur.execute('''CREATE TABLE sensor(
-                    id INTEGER PRIMARY KEY,
-                    temperature NUMERIC,
-                    humidity NUMERIC,
-                    createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
-    con.commit()
-    cur.close()
-
-def insertAHomePodRecord(params):
-    db_file2 = os.path.join(os.path.dirname(__file__), 'homepod.db')
-    con = sqlite3.connect(db_file2)
-    cur = con.cursor()
-    cur.execute(
-        "INSERT INTO sensor(temperature, humidity) values(?, ?)", params)
-    con.commit()
-    cur.close()
-
-# 创建一个存储的db
-def initialDataBase():
-    db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
-    con = sqlite3.connect(DB_FILE)
-    cur = con.cursor()
-    # create user table
-    cur.execute('''CREATE TABLE surroundings(
-                    id INTEGER PRIMARY KEY,
-                    location VARCHAR(50),
-                    temperature NUMERIC,
-                    humidity NUMERIC,
-                    cup_temp NUMERIC,
-                    cpu_used_rate NUMERIC,
-                    sys_uptime VARCHAR(50),
-                    sys_runtime INTEGER,
-                    weather VARCHAR(50),
-                    weather_code INTEGER,
-                    weather_des VARCHAR(50),
-                    weather_icon VARCHAR(10),
-                    outdoors_temp NUMERIC,
-                    outdoors_feels_like NUMERIC,
-                    outdoors_temp_min NUMERIC,
-                    outdoors_temp_max NUMERIC,
-                    outdoors_pressure NUMERIC,
-                    outdoors_humidity NUMERIC,
-                    createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
-    con.commit()
-    cur.close()
-
-
 if __name__ == "__main__":
     tem, humi = readTemAndHumidity()
     cpu_usage = get_cpu_usage()
@@ -206,9 +155,6 @@ if __name__ == "__main__":
     # print(f"系统开机时间: {system_uptime}")
     # print(f"CPU温度: {cpu_temperature}°C")
     # print(f"系统运行时间: {syste_runtime}")
-
-    # 创建数据库
-    # initialDataBase()
 
     current_time = datetime.now()
 
