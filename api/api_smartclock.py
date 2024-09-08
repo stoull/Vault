@@ -127,9 +127,9 @@ def pi_control_screen_action():
         abort(400)
     else:
         state = params['state']
-        if state == 'on' or state == '开' or state == 'turnOn' or state == '打开' or state == 1:
+        if state == 'on' or state == '开' or state == 'turnOn' or state == '打开' or state == '1':
             state = ScreenControl.turn_screen_on()
-        elif state == 'off' or state == '关' or state == '关闭' or state == 'turnOff' or state == 0:
+        elif state == 'off' or state == '关' or state == '关闭' or state == 'turnOff' or state == '0':
             state = ScreenControl.turn_screen_off()
         result_dic = {"result": state}
     response = response_manager.json_response(result_dic)
