@@ -43,7 +43,7 @@ def initSurroundingsDataBase():
     con.commit()
     cur.close()
 
-def initSurroundingsDataBase():
+def initAirConditionerDataBase():
     db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
     con = sqlite3.connect(DB_FILE)
     cur = con.cursor()
@@ -91,7 +91,21 @@ def initNoteDataBase():
     con.commit()
     cur.close()
 
+def initFridgeDataBase():
+    db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
+    con = sqlite3.connect(DB_FILE)
+    cur = con.cursor()
+    cur.execute('''CREATE TABLE fridge(
+                    id INTEGER PRIMARY KEY,
+                    tag VARCHAR(50),
+                    temperature NUMERIC,
+                    humidity NUMERIC,
+                    createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    con.commit()
+    cur.close()
+
 if __name__ == "__main__":
-    initHomePodDataBase()
-    initScreenLogDataBase()
-    initNoteDataBase()
+    # initHomePodDataBase()
+    # initScreenLogDataBase()
+    # initNoteDataBase()
+    initFridgeDataBase()

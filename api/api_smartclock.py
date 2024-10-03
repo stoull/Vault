@@ -14,13 +14,21 @@ from .smartclock_db_operator import readHomePodRecord, insertAHomePodRecord, ins
 from .smartclock_db_operator import readNoteRecord, insertNoteRecord
 from .smartclock_db_operator import insert_screen_action, read_screen_actions
 from .api_helper import is_date_format_valid
+
 # 人体检测相关
 from .screen_control import ScreenControl
 
+# mqtt相关
+from .smartclock_db_operator import readFridgeRecordsWithPeriod
+from .mqtt_subscriber import start_listening_mqtt
 
 smart_clock_bp = Blueprint('smart_clock', __name__)
 app = Flask(__name__)
 response_manager = ResponseManager(app)
+
+# 开始mqtt的监听
+start_listening_mqtt()
+
 @smart_clock_bp.errorhandler(400)
 def bad_request__error(e):
     print(f"bleu print internal_server_error {e}")
@@ -192,6 +200,20 @@ def readSurroundingsRecordsWithPeriod():
         result_dic = {'message': 'The dateformat is invalid'}
     else:
         result_dic = readRecordsWithPeriod(params['startDate'], params['endDate'])
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@smart_clock_bp.route('/fridge/history', methods=['POST', 'GET'])
+def readFridgeRecordsWithPeriod_server():
+    params = getRequestParamters(request)
+    result_dic = {}
+    if 'startDate' not in params or 'endDate' not in params:
+        result_dic = {'message': 'Must have startDate and endDate'}
+    elif not is_date_format_valid(params['startDate']) or not is_date_format_valid(params['endDate']):
+        result_dic = {'message': 'The dateformat is invalid'}
+    else:
+        result_dic = readFridgeRecordsWithPeriod(params['startDate'], params['endDate'])
     response = response_manager.json_response(result_dic)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response

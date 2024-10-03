@@ -298,3 +298,66 @@ def readNoteRecord(count):
 	return {
 		"data": datas
 	}
+
+
+# cur.execute('''CREATE TABLE fridge(
+#                 id INTEGER PRIMARY KEY,
+#                 tag VARCHAR(50),
+#                 temperature NUMERIC,
+#                 humidity NUMERIC,
+#                 createDate DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+
+def insertFridgeRecord(params):
+	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
+	con = sqlite3.connect(db_file)
+	cur = con.cursor()
+	# (tag, temperature, humidity)
+	cur.execute(
+		"INSERT INTO fridge(tag, temperature, humidity)"
+		" VALUES(?, ?, ?)", params)
+	con.commit()
+	cur.close()
+
+def readFridgeRecordsWithPeriod(startDate, endDate):
+	if not is_date_format_valid(startDate)  or not is_date_format_valid(endDate):
+		return {
+			"temperature": [],
+			"humidity": []
+		}
+
+	selectSQL = f"""
+	    SELECT *
+	    FROM (
+	        SELECT *, DATETIME(createDate, '+8 hours') AS localTime
+	        FROM fridge
+	    )
+	    WHERE localTime BETWEEN '{startDate}' AND '{endDate}';
+	"""
+	db_file2 = os.path.join(os.path.dirname(__file__), 'surroundings.db')
+	con = sqlite3.connect(db_file2)
+	cur = con.cursor()
+	cur.execute(selectSQL)
+	datas = []
+
+	info_keys = ["id", "tag", "temperature", "humidity", "createDate"];
+	for data in cur.fetchall():
+		itemDic = {}
+		for i in range(0, len(info_keys)):
+			key = info_keys[i]
+			itemDic[key] = data[i]
+			if key == 'createDate':
+				utc_time_str = data[i]
+				naive_datetime = datetime.strptime(utc_time_str, '%Y-%m-%d %H:%M:%S')
+				# 创建 UTC 时区对象
+				utc_timezone = pytz.utc
+				# 将 naive datetime 转换为 UTC datetime
+				utc_datetime = utc_timezone.localize(naive_datetime)
+				target_timezone = pytz.timezone('Asia/Shanghai')
+				local_time = utc_datetime.astimezone(target_timezone)
+				itemDic[key] = local_time
+		datas.append(itemDic)
+	con.commit()
+	cur.close()
+	return {
+		"data": datas
+	}
