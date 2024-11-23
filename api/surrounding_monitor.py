@@ -1,4 +1,4 @@
-import sqlite3, os, time, platform
+import sqlite3, os, time, platform, json
 import Adafruit_DHT
 import psutil
 from datetime import datetime
@@ -16,13 +16,42 @@ LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 def readTemAndHumidity():
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
 
+    theLastTemp, theLastHumi = readTheLastInfo()
     if humidity is not None and temperature is not None:
         humi = round(humidity, 2)
         temp = round(temperature, 2)
+        if theLastTemp is None: theLastTemp = temp
+        if theLastHumi is None: theLastHumi = humi
+        dTemp = 0
+        dHumi = 0
+        if theLastTemp is not None: dTemp = temp - theLastTemp
+        if theLastHumi is not None: dHumi = humi - theLastHumi
+        if abs(dTemp) > 6: temp = theLastTemp
+        if abs(dHumi) > 6: humi = theLastHumi
         result = (temp, humi)
+        writeTheLastInfo(result)
         return result
     else:
         return (0, 0)
+
+TheLastInfoFilePath = "/home/pi/Documents/PythonProjects/Vault/api/TheLastInfo.json"
+def readTheLastInfo():
+    try:
+        with open(TheLastInfoFilePath, 'r') as json_file:
+            data_read = json.load(json_file)
+            print(data_read)
+            return data_read['temp'], data_read['humi']
+    except FileNotFoundError as e:
+         return 0,0
+
+def writeTheLastInfo(info):
+    temp, humi = info
+    data_to_write = {
+        "temp": temp,
+        "humi": humi
+    }
+    with open(TheLastInfoFilePath, 'w') as json_file:
+        json.dump(data_to_write, json_file, indent=4)
 
 def get_cpu_usage():
     return psutil.cpu_percent(interval=1)
