@@ -6,6 +6,8 @@ from subprocess import run
 # External module imports
 # import RPi.GPIO as GPIO
 
+from .smartclock_db_operator import insert_screen_action
+
 class ScreenControl:
     def __init__(self, timeout=300):  # 默认超时时间为300秒（5分钟）
         self.detectedX = 0
@@ -66,7 +68,6 @@ class ScreenControl:
 
     @classmethod
     def turn_screen_off(cls):
-        print("turn_screen_off xxx ")
         result = run('vcgencmd display_power 0', shell=True, capture_output=True, text=True)
         if result.stdout == 'display_power=0\n':
             return True
@@ -75,9 +76,9 @@ class ScreenControl:
 
     @classmethod
     def turn_screen_on(cls):
-        print("turn_screen_on xxx ")
         result = run('vcgencmd display_power 1', shell=True, capture_output=True, text=True)
         if result.stdout == 'display_power=1\n':
+            insert_screen_action(True)
             return True
         else:
             return False
