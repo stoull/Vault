@@ -20,6 +20,7 @@ def readTemAndHumidity():
     if humidity is not None and temperature is not None:
         humi = round(humidity, 2)
         temp = round(temperature, 2)
+        print(theLastTemp)
         if theLastTemp is None: theLastTemp = temp
         if theLastHumi is None: theLastHumi = humi
         dTemp = 0
@@ -42,7 +43,7 @@ def readTheLastInfo():
             print(data_read)
             return data_read['temp'], data_read['humi']
     except FileNotFoundError as e:
-         return 0,0
+         return None,None
 
 def writeTheLastInfo(info):
     temp, humi = info
