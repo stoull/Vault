@@ -27,8 +27,8 @@ def readTemAndHumidity():
         dHumi = 0
         if theLastTemp is not None: dTemp = temp - theLastTemp
         if theLastHumi is not None: dHumi = humi - theLastHumi
-        if abs(dTemp) > 6: temp = theLastTemp
-        if abs(dHumi) > 6: humi = theLastHumi
+        if abs(dTemp) > 20: temp = theLastTemp
+        if abs(dHumi) > 50: humi = theLastHumi
         result = (temp, humi)
         writeTheLastInfo(result)
         return result
