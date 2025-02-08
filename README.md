@@ -18,3 +18,13 @@
 #### 功能式架构
 
 [flask-realworld-example-app](https://github.com/gothinkster/flask-realworld-example-app.git)
+
+`pip install Flask`
+
+`pip install requests`
+
+`pip install pytz` : UTC时区转换 - smartclook
+
+`pip install Adafruit-DHT` : DHT温湿度传感器读取(仅Pi) - smartclook
+`pip install psutil` : 读取设备的硬件信息，如Cpu温度(仅Pi) - smartclook
+`pip install paho-mqtt` : mqtt服务 - smartclook
