@@ -16,21 +16,35 @@ LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 def readTemAndHumidity():
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
 
-    theLastTemp, theLastHumi = readTheLastInfo()
+    return abnormalVaulueCheck(humidity, temperature)
+
+def abnormalVaulueCheck(humidity, temperature):
+    theLastTemp, theLastHumi, unusual_temp_count, unusual_hum_count = readTheLastInfo()
     if humidity is not None and temperature is not None:
         humi = round(humidity, 2)
         temp = round(temperature, 2)
-        print(theLastTemp)
         if theLastTemp is None: theLastTemp = temp
         if theLastHumi is None: theLastHumi = humi
+        if unusual_temp_count is None: unusual_temp_count = 0
+        if unusual_hum_count is None: unusual_hum_count = 0
         dTemp = 0
         dHumi = 0
         if theLastTemp is not None: dTemp = temp - theLastTemp
         if theLastHumi is not None: dHumi = humi - theLastHumi
-        if abs(dTemp) > 20: temp = theLastTemp
-        if abs(dHumi) > 50: humi = theLastHumi
+        if abs(dTemp) > 3:
+            unusual_temp_count+=1
+            if unusual_temp_count > 2:
+                unusual_temp_count=0
+            else:
+                temp = theLastTemp
+        if abs(dHumi) > 10:
+            unusual_hum_count+=1
+            if unusual_hum_count > 2:
+                unusual_hum_count=0
+            else:
+                humi = theLastHumi
         result = (temp, humi)
-        writeTheLastInfo(result)
+        writeTheLastInfo((temp, humi, unusual_temp_count, unusual_hum_count))
         return result
     else:
         return (0, 0)
@@ -40,16 +54,17 @@ def readTheLastInfo():
     try:
         with open(TheLastInfoFilePath, 'r') as json_file:
             data_read = json.load(json_file)
-            print(data_read)
-            return data_read['temp'], data_read['humi']
+            return data_read['temp'], data_read['humi'], data_read['unusual_temp_count'], data_read['unusual_hum_count'],
     except FileNotFoundError as e:
-         return None,None
+         return None,None,None,None
 
 def writeTheLastInfo(info):
-    temp, humi = info
+    temp, humi, unusual_temp_count, unusual_hum_count = info
     data_to_write = {
         "temp": temp,
-        "humi": humi
+        "humi": humi,
+        "unusual_temp_count": unusual_temp_count,
+        "unusual_hum_count": unusual_hum_count,
     }
     with open(TheLastInfoFilePath, 'w') as json_file:
         json.dump(data_to_write, json_file, indent=4)
