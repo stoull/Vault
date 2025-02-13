@@ -20,14 +20,14 @@ from .screen_control import ScreenControl
 
 # mqtt相关
 from .smartclock_db_operator import readFridgeRecordsWithPeriod
-from .mqtt_subscriber import start_listening_mqtt
+# from .mqtt_subscriber import start_listening_mqtt
 
 smart_clock_bp = Blueprint('smart_clock', __name__)
 app = Flask(__name__)
 response_manager = ResponseManager(app)
 
 # 开始mqtt的监听
-start_listening_mqtt()
+# start_listening_mqtt()
 
 @smart_clock_bp.errorhandler(400)
 def bad_request__error(e):
