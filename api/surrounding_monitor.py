@@ -37,12 +37,16 @@ def abnormalVaulueCheck(humidity, temperature):
                 unusual_temp_count=0
             else:
                 temp = theLastTemp
+        else:
+            unusual_temp_count = 0
         if abs(dHumi) > 10:
             unusual_hum_count+=1
             if unusual_hum_count > 2:
                 unusual_hum_count=0
             else:
                 humi = theLastHumi
+        else:
+            unusual_hum_count = 0
         result = (temp, humi)
         writeTheLastInfo((temp, humi, unusual_temp_count, unusual_hum_count))
         return result
