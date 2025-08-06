@@ -9,7 +9,7 @@ from models.response_manager import ResponseManager
 from models.vt_request import getRequestParamters
 
 # 温湿度相关
-from .smartclock_db_operator import readTheLastRecord, readTheLastEightHoursRecord, readRecordsWithPeriod
+from .smartclock_db_operator import readTheLastRecord, insertARecord, readTheLastEightHoursRecord, readRecordsWithPeriod
 from .smartclock_db_operator import readHomePodRecord, insertAHomePodRecord, insertAirConditionerRecord, readAirConditionerRecord
 from .smartclock_db_operator import readNoteRecord, insertNoteRecord
 from .smartclock_db_operator import insert_screen_action, read_screen_actions
@@ -27,7 +27,7 @@ app = Flask(__name__)
 response_manager = ResponseManager(app)
 
 # 开始mqtt的监听
-start_listening_mqtt()
+# start_listening_mqtt()
 
 @smart_clock_bp.errorhandler(400)
 def bad_request__error(e):
@@ -105,20 +105,11 @@ def read_airconditioner_record():
 @smart_clock_bp.route('/temperature-humidity/airconditioner', methods=['POST'])
 def insert_airconditioner_record(params):
     params = getRequestParamters(request)
-
-    location = 'HOME'
-    temperature = 25
-    model = '1'
-    description = ''
     if params is not None:
-        if 'location' in params:
-            location = params['location']
-        if 'temperature' in params:
-            temperature = params['temperature']
-        if 'model' in params:
-            model = params['model']
-        if 'description' in params:
-            description = params['description']
+        location = params.get('location', 'HOME')
+        temperature = params.get('temperature', 25)
+        model = params.get('model', '1')
+        description = params.get('description', '')
         insertAirConditionerRecord([location, temperature, model, description])
         result_dic = {"result": 1, "message": 'success'}
     else:
@@ -214,6 +205,21 @@ def readFridgeRecordsWithPeriod_server():
         result_dic = {'message': 'The dateformat is invalid'}
     else:
         result_dic = readFridgeRecordsWithPeriod(params['startDate'], params['endDate'])
+    response = response_manager.json_response(result_dic)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@smart_clock_bp.route('/surroundings/record', methods=['POST'])
+def insertASurroundingRecord():
+    params = getRequestParamters(request)
+    result_dic = {}
+    if params is not None:
+        if 'record' in params:
+            record_para = params['record']
+            print(f"insertASurroundingRecord record_para: {record_para}")
+            result_dic = insertARecord(record_para)
+        else:
+            result_dic = {'message': 'A record must have a record parameter'}
     response = response_manager.json_response(result_dic)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response

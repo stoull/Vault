@@ -5,7 +5,7 @@ from datetime import datetime
 import requests
 
 DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
-# DB_FILE = "/Users/hut/Documents/PythonProjects/Vault/api/surroundings.db"
+# DB_FILE = "/Users/hut/Documents/python-projects/Vault/api/surroundings.db"
 # 心知天气 https://www.seniverse.com
 # WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
 # open weather
@@ -176,6 +176,19 @@ def insertARecord(params):
     con.commit()
     cur.close()
 
+def postArecord(params):
+    url = "http://127.0.0.1:5001/api/smart-clock/surroundings/record"
+    payload = {"record": params}
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        print(f"插入一条记录成功: {response.json()}")
+        return response.json()
+    except requests.RequestException as e:
+        print(f"插入一条记录失败: str(e)")
+        return {"result": 0, "message": str(e)}
+
+
 if __name__ == "__main__":
     tem, humi = readTemAndHumidity()
     cpu_usage = get_cpu_usage()
@@ -207,7 +220,7 @@ if __name__ == "__main__":
 
     current_time = datetime.now()
 
-    insertARecord([LOCATION,
+    params = [LOCATION,
                    tem,
                    humi,
                    cpu_temperature,
@@ -224,4 +237,6 @@ if __name__ == "__main__":
                    outdoors_temp_max,
                    outdoors_pressure,
                    outdoors_humidity
-                   ])
+                   ]
+    insertARecord(params)
+    # postArecord(params)
