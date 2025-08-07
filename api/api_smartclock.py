@@ -216,7 +216,7 @@ def insertASurroundingRecord():
     if params is not None:
         if 'record' in params:
             record_para = params['record']
-            print(f"insertASurroundingRecord record_para: {record_para}")
+            # print(f"insertASurroundingRecord record_para: {record_para}")
             result_dic = insertARecord(record_para)
         else:
             result_dic = {'message': 'A record must have a record parameter'}
