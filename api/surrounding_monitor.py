@@ -6,7 +6,7 @@ import requests
 
 # DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # DB_FILE = "/Users/hut/Documents/python-projects/Vault/api/surroundings.db"
-DB_FILE = "/Users/hut/Documents/PythonSpace/Vault/api/surroundings.db"
+DB_FILE = "/home/www-data/Vault/api/surroundings.db"
 # 心知天气 https://www.seniverse.com
 # WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
 # open weather
