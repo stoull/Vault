@@ -1,12 +1,11 @@
 import sqlite3, os, time, platform, json
-# import Adafruit_DHT
+import Adafruit_DHT
 import psutil
 from datetime import datetime
 import requests
 
-# DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
+DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # DB_FILE = "/Users/hut/Documents/python-projects/Vault/api/surroundings.db"
-DB_FILE = "/home/www-data/Vault/api/surroundings.db"
 # 心知天气 https://www.seniverse.com
 # WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
 # open weather
@@ -15,10 +14,9 @@ LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 # LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
 
 def readTemAndHumidity():
-    # humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
-    #
-    # return abnormalVaulueCheck(humidity, temperature)
-    return (0, 0)
+    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 9)
+
+    return abnormalVaulueCheck(humidity, temperature)
 
 def abnormalVaulueCheck(humidity, temperature):
     theLastTemp, theLastHumi, unusual_temp_count, unusual_hum_count = readTheLastInfo()
@@ -179,7 +177,7 @@ def insertARecord(params):
     cur.close()
 
 def postArecord(params):
-    url = "http://hutpi.local:5001/api/smart-clock/surroundings/record"
+    url = "https://ahut.site:8080/api/smart-clock/surroundings/record"
     payload = {"record": params}
     try:
         response = requests.post(url, json=payload, timeout=10)
@@ -240,5 +238,5 @@ if __name__ == "__main__":
                    outdoors_pressure,
                    outdoors_humidity
                    ]
-    # insertARecord(params)
+    insertARecord(params)
     postArecord(params)
