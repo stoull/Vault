@@ -9,8 +9,6 @@ from flask import make_response
 from flask import session
 from flask import Flask, redirect
 
-# a if condition else b
-
 from models.form import LoginForm
 from models.authorization import AuthManager
 from models.response_manager import ResponseManager
@@ -19,7 +17,20 @@ from api.api import api_bp
 from api.api_images import image_bp
 from api.api_smartclock import smart_clock_bp
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+
+# 配置 跨域资源共享（Cross-origin resource sharing)
+# 仅允许指定前端源，生产环境不要用 '*'
+CORS(app,
+     resources={r"/api/*": {"origins": ["http://localhost:3000", "https://ahut.site:8081"]}},
+     supports_credentials=True,              # 如果前端需要带 cookie/token
+     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     expose_headers=["X-Total-Count"],       # 可选：让前端可读这些自定义响应头
+     max_age=86400)                          # 预检结果缓存 1 天
+
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
 env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()

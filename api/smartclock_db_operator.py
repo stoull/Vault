@@ -11,6 +11,31 @@ KEYLIST = ["id", "location", "temperature", "humidity", "cup_temp",
 		   "weather_des", "weather_icon",  "outdoors_temp", "outdoors_feels_like",
 		   "outdoors_temp_min", "outdoors_temp_max", "outdoors_pressure", "outdoors_humidity", "createDate"]
 
+def insertARecord(params):
+    con = sqlite3.connect(DB_FILE)
+    cur = con.cursor()
+    result_api, message = 0, "fail"
+    try:
+        cur.execute(
+            "INSERT INTO surroundings(location, temperature, humidity, cup_temp,"
+            " cpu_used_rate, sys_uptime, sys_runtime, weather, weather_code,"
+            " weather_des, weather_icon, outdoors_temp, outdoors_feels_like, outdoors_temp_min,"
+            " outdoors_temp_max, outdoors_pressure, outdoors_humidity)"
+            " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            params)
+        con.commit()
+        result_api, message = 1, "success"
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        message = str(e)
+    finally:
+        cur.close()
+        con.close()
+    return {
+        "result": result_api,
+        "message": message
+    }
+
 def readTheLastRecord():
 	db_file = os.path.join(os.path.dirname(__file__), 'surroundings.db')
 	con = sqlite3.connect(DB_FILE)

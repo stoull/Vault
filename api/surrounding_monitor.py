@@ -37,12 +37,16 @@ def abnormalVaulueCheck(humidity, temperature):
                 unusual_temp_count=0
             else:
                 temp = theLastTemp
+        else:
+            unusual_temp_count = 0
         if abs(dHumi) > 10:
             unusual_hum_count+=1
             if unusual_hum_count > 2:
                 unusual_hum_count=0
             else:
                 humi = theLastHumi
+        else:
+            unusual_hum_count = 0
         result = (temp, humi)
         writeTheLastInfo((temp, humi, unusual_temp_count, unusual_hum_count))
         return result
@@ -174,6 +178,19 @@ def insertARecord(params):
     con.commit()
     cur.close()
 
+def postArecord(params):
+    url = "https://ahut.site:8080/api/smart-clock/surroundings/record"
+    payload = {"record": params}
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        print(f"插入一条记录成功: {response.json()}")
+        return response.json()
+    except requests.RequestException as e:
+        print(f"插入一条记录失败: str(e)")
+        return {"result": 0, "message": str(e)}
+
+
 if __name__ == "__main__":
     tem, humi = readTemAndHumidity()
     cpu_usage = get_cpu_usage()
@@ -205,7 +222,7 @@ if __name__ == "__main__":
 
     current_time = datetime.now()
 
-    insertARecord([LOCATION,
+    params = [LOCATION,
                    tem,
                    humi,
                    cpu_temperature,
@@ -222,4 +239,6 @@ if __name__ == "__main__":
                    outdoors_temp_max,
                    outdoors_pressure,
                    outdoors_humidity
-                   ])
+                   ]
+    insertARecord(params)
+    postArecord(params)
