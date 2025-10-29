@@ -23,15 +23,12 @@ def init_db():
 def create_thumbnail(image_path, size=(300, 300)):
     """创建缩略图"""
     # 创建缩略图目录
-    print(f"创建缩略图-开始0: image_path")
     thumbnail_dir = os.path.join(os.path.dirname(image_path), 'thumbnails')
     os.makedirs(thumbnail_dir, exist_ok=True)
 
     # 生成缩略图路径
     filename = os.path.basename(image_path)
     thumbnail_path = os.path.join(thumbnail_dir, filename)
-
-    print(f"创建缩略图-开始: {thumbnail_path}")
 
     # 创建缩略图
     with PILImage.open(image_path) as img:
