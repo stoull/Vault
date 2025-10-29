@@ -1,11 +1,11 @@
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
+from sqlalchemy import inspect, func, text
 
 # 创建数据库引擎
-database_url = "sqlite:///./images.db"
+database_url = "sqlite:///./models/images.db"
 engine = create_engine(database_url, echo=True)
 
 # 创建Session
@@ -62,3 +62,86 @@ class Image(Base):
                 return f"{size_bytes:.2f} {unit}"
             size_bytes /= 1024.0
         return f"{size_bytes:.2f} TB"
+
+    @classmethod
+    def get_database_status(cls):
+        """获取数据库状态信息"""
+        try:
+            # 基础统计
+            total_count = session.query(func.count(cls.id)).scalar() or 0
+            active_count = session.query(func.count(cls.id)).filter_by(is_deleted=False).scalar() or 0
+            deleted_count = session.query(func.count(cls.id)).filter_by(is_deleted=True).scalar() or 0
+
+            # 存储统计
+            total_size = session.query(func.sum(cls.file_size)).filter_by(is_deleted=False).scalar() or 0
+            deleted_size = session.query(func.sum(cls.file_size)).filter_by(is_deleted=True).scalar() or 0
+
+            # 文件类型统计
+            mime_stats = session.query(
+                cls.mime_type,
+                func.count(cls.id).label('count')
+            ).filter_by(is_deleted=False).group_by(cls.mime_type).all()
+
+            # 最近上传
+            latest_upload = session.query(cls).filter_by(is_deleted=False).order_by(cls.upload_time.desc()).first()
+            oldest_upload = session.query(cls).filter_by(is_deleted=False).order_by(cls.upload_time.asc()).first()
+
+            return {
+                'total_images': total_count,
+                'active_images': active_count,
+                'deleted_images': deleted_count,
+                'storage': {
+                    'total_size': total_size,
+                    'total_size_human': cls._format_size(total_size),
+                    'deleted_size': deleted_size,
+                    'deleted_size_human': cls._format_size(deleted_size)
+                },
+                'mime_types': {mime: count for mime, count in mime_stats},
+                'latest_upload': latest_upload.upload_time.isoformat() if latest_upload else None,
+                'oldest_upload': oldest_upload.upload_time.isoformat() if oldest_upload else None
+            }
+        except Exception as e:
+            return {
+                'error': str(e),
+                'status': 'error'
+            }
+
+    @classmethod
+    def get_table_info(cls):
+        """获取表结构信息"""
+        try:
+            inspector = inspect(engine)
+            columns = inspector.get_columns(cls.__tablename__)
+            indexes = inspector.get_indexes(cls.__tablename__)
+
+            return {
+                'table_name': cls.__tablename__,
+                'columns': [
+                    {
+                        'name': col['name'],
+                        'type': str(col['type']),
+                        'nullable': col['nullable'],
+                        'default': str(col['default']) if col['default'] else None,
+                        'primary_key': col.get('primary_key', False)
+                    }
+                    for col in columns
+                ],
+                'indexes': [
+                    {
+                        'name': idx['name'],
+                        'columns': idx['column_names'],
+                        'unique': idx['unique']
+                    }
+                    for idx in indexes
+                ]
+            }
+        except Exception as e:
+            return {
+                'error': str(e),
+                'status': 'error'
+            }
+
+if __name__ == "__main__":
+    # 创建所有表
+    tableinof = Image.get_database_status()
+    print(tableinof)

@@ -81,7 +81,11 @@ def upload_image():
 def get_image(filename):
     """通过UUID文件名获取图片"""
     # 检查数据库中是否存在且未删除
-    image = Image.query.filter_by(uuid_filename=filename, is_deleted=False).first()
+    image = session.query(Image).filter_by(
+        uuid_filename=filename,
+        is_deleted=False
+    ).first()
+
     if not image:
         return jsonify({'error': 'Image not found'}), 404
 
@@ -107,7 +111,10 @@ def get_thumbnail(filename):
 @image_bp.route('/download/<int:image_id>', methods=['GET'])
 def download_image(image_id):
     """下载图片，使用原始文件名"""
-    image = Image.query.filter_by(id=image_id, is_deleted=False).first_or_404()
+    image = session.query(Image).filter_by(
+        id=image_id,
+        is_deleted=False
+    ).first()
 
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], image.uuid_filename)
     if not os.path.exists(filepath):
@@ -124,7 +131,10 @@ def download_image(image_id):
 @image_bp.route('/<int:image_id>', methods=['DELETE'])
 def delete_image(image_id):
     """软删除图片"""
-    image = Image.query.filter_by(id=image_id, is_deleted=False).first_or_404()
+    image = session.query(Image).filter_by(
+        id=image_id,
+        is_deleted=False
+    ).first()
 
     try:
         # 软删除（推荐）
@@ -208,7 +218,10 @@ def list_images():
 @image_bp.route('/<int:image_id>/info', methods=['GET'])
 def get_image_info(image_id):
     """获取图片详细信息"""
-    image = Image.query.filter_by(id=image_id, is_deleted=False).first_or_404()
+    image = session.query(Image).filter_by(
+        id=image_id,
+        is_deleted=False
+    ).first()
     return jsonify({
         'success': True,
         'data': image.to_dict()
@@ -218,7 +231,10 @@ def get_image_info(image_id):
 @image_bp.route('/<int:image_id>', methods=['PUT', 'PATCH'])
 def update_image_info(image_id):
     """更新图片信息（如描述）"""
-    image = Image.query.filter_by(id=image_id, is_deleted=False).first_or_404()
+    image = session.query(Image).filter_by(
+        id=image_id,
+        is_deleted=False
+    ).first()
 
     data = request.get_json()
 
