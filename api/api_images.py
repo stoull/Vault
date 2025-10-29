@@ -29,6 +29,7 @@ def upload_image():
         return jsonify({'error': 'No selected file'}), 400
 
     params = getRequestParamters(request)
+    print('=======param: ', params)
 
     try:
         type_i = int(params['type'])
@@ -99,7 +100,7 @@ def upload_image():
         return jsonify({
             'success': True,
             'data': image.to_dict()
-        }), 201
+        }), 200
 
     except Exception as e:
         session.rollback()
