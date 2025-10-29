@@ -15,13 +15,32 @@ session = Session()
 # 创建基础模型类
 Base = declarative_base()
 
+# 定义系统字典表模型
+class SystemDict(Base):
+    __tablename__ = "system_dict"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    table_name = Column(String(255), nullable=False)    # -- 表名
+    column_name = Column(String(255), nullable=False)   # -- 字段名
+    value = Column(String(255), nullable=False)     # -- 字段值
+    meaning = Column(String(255), nullable=False)   # -- 字段含义
+    description = Column(String(255), nullable=False)   # -- 字段描述
+    is_active = Column(Boolean, default=True)    # -- 是否启用
+    created_by = Column(String(100), nullable=False)    # -- 创建人
+    created_time = Column(DateTime, default=datetime.now, onupdate=datetime.now)    # -- 创建时间
+
+    def __repr__(self):
+        return f'<SystemDict {self.key}>'
+
 class Image(Base):
     __tablename__ = "images"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(Integer)  # 图片类型，预留字段
     uuid_filename = Column(String(100), unique=True, nullable=False, index=True)
     original_filename = Column(String(255), nullable=False)
     file_size = Column(Integer)
+    md5_hash = Column(String(32), index=True)
     width = Column(Integer)  # 图片宽度
     height = Column(Integer)  # 图片高度
     mime_type = Column(String(50))
@@ -39,11 +58,14 @@ class Image(Base):
     def to_dict(self):
         return {
             'id': self.id,
+            'type': self.type,
+            'tags': self.tags,
             'filename': self.uuid_filename,
             'original_name': self.original_filename,
             'url': f"/images/{self.uuid_filename}",
             'thumbnail_url': f"/images/thumbnails/{self.uuid_filename}",
             'size': self.file_size,
+            'md5_hash': self.md5_hash,
             'size_human': self._format_size(self.file_size),
             'mime_type': self.mime_type,
             'dimensions': {

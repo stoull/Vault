@@ -7,8 +7,15 @@ from models.image_db import session, Image
 from sqlalchemy import func, or_, and_
 from utils import allowed_file, create_thumbnail
 
+from models.vt_request import getRequestParamters
+from utils import calculate_partial_md5_flexible, calculate_fileobject_md5
+
 image_bp = Blueprint('image', __name__)
 
+def check_image_duplicate(image_md5):
+    """检查文件是否重复"""
+    existing_image = session.query(Image).filter_by(md5_hash=image_md5).first()
+    return existing_image or None
 
 @image_bp.route('/upload', methods=['POST'])
 def upload_image():
@@ -21,6 +28,15 @@ def upload_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
+    params = getRequestParamters(request)
+
+    try:
+        type_i = int(params['type'])
+    except (KeyError, ValueError, TypeError):
+        type_i = 0
+
+    tags = params.get('tags') or None
+
     if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
         return jsonify({'error': 'File type not allowed'}), 400
 
@@ -30,11 +46,25 @@ def upload_image():
         uuid_filename = f"{uuid.uuid4().hex}{ext}"
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], uuid_filename)
 
+        small_check_md5 = calculate_fileobject_md5(file, chunk_size=512 * 1024)
+
+        print(f'Calculated MD5 (first 64KB)- {file.filename} : {small_check_md5}')
+
+        # 检查重复
+        duplicate_image = check_image_duplicate(small_check_md5)
+        if duplicate_image:
+            return jsonify({
+                'success': True,
+                'message': 'Duplicate image found',
+                'data': duplicate_image.to_dict()
+            }), 200
+
         # 保存原图
         file.save(filepath)
 
         # 获取图片信息
         file_size = os.path.getsize(filepath)
+        # small_check_md5 = calculate_partial_md5_flexible(filepath, 512 * 1024)  # 前64KB
         width, height = None, None
 
         try:
@@ -51,9 +81,12 @@ def upload_image():
 
         # 保存到数据库
         image = Image(
+            type=type_i,
+            tags=tags,
             uuid_filename=uuid_filename,
             original_filename=file.filename,
             file_size=file_size,
+            md5_hash=small_check_md5,
             mime_type=file.content_type,
             width=width,
             height=height,
@@ -81,19 +114,30 @@ def upload_image():
 def get_image(filename):
     """通过UUID文件名获取图片"""
     # 检查数据库中是否存在且未删除
+    file_on_disk_name = filename
     image = session.query(Image).filter_by(
         uuid_filename=filename,
         is_deleted=False
     ).first()
 
+    if image is None:
+        print('--- Image Info ---', filename)
+        image = session.query(Image).filter_by(
+            original_filename=filename,
+            is_deleted=False
+        ).first()
+        file_on_disk_name = image.uuid_filename if image else None
+
+    print(image)
+
     if not image:
         return jsonify({'error': 'Image not found'}), 404
 
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_on_disk_name)
     if not os.path.exists(filepath):
         return jsonify({'error': 'File not found on disk'}), 404
 
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], file_on_disk_name)
 
 
 @image_bp.route('/thumbnails/<filename>', methods=['GET'])

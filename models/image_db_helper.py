@@ -1,14 +1,34 @@
 from PIL import Image as PILImage
-from image_db import session, Image, Base, engine
+from image_db import session, Image, Base, engine, SystemDict
 import os
 from werkzeug.utils import secure_filename
 import uuid
+import hashlib
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 # 图片服务配置
 IMAGE_URL_PREFIX = '/images'
 THUMBNAIL_SIZE = (300, 300)
+
+def check_image_duplicate(image_md5):
+    """检查文件是否重复"""
+    existing_image = session.query(Image).filter_by(md5_hash=image_md5).first()
+    return existing_image or None
+
+def calculate_partial_md5_flexible(file_path, bytes_to_read=512 * 1024):
+    """计算文件前指定字节数的 MD5"""
+    hash_md5 = hashlib.md5()
+
+    with open(file_path, "rb") as f:
+        # 读取指定字节数
+        data = f.read(bytes_to_read)
+        hash_md5.update(data)
+
+    return hash_md5.hexdigest()
+
+# 不同大小的测试
+# small_check = calculate_partial_md5_flexible("image.jpg", 512 * 1024)  # 前64KB
 
 def init_db():
     # 创建所有表
@@ -18,7 +38,31 @@ def init_db():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
+    # 初始化 SystemReadMe 表
+    init_system_dict()
 
+def init_system_dict():
+    system_dict_images_type_1 = SystemDict(
+        table_name="images",
+        column_name="type",
+        value="1",
+        meaning="电影项目图片",
+        description="10: movie 20: iclock",
+        is_active=True,
+        created_by="system"
+    )
+    system_dict_images_type_2 = SystemDict(
+        table_name="images",
+        column_name="type",
+        value="2",
+        meaning="iclock项目图片",
+        description="10: movie 20: iclock",
+        is_active=True,
+        created_by="system"
+    )
+    session.add(system_dict_images_type_1)
+    session.add(system_dict_images_type_2)
+    session.commit()
 
 def create_thumbnail(image_path, size=(300, 300)):
     """创建缩略图"""
@@ -86,6 +130,7 @@ def import_image(filename, origin_filepath):
 
         # 获取图片信息
         file_size = os.path.getsize(filepath)
+        small_check_md5 = calculate_partial_md5_flexible(filepath, 512 * 1024)  # 前64KB
         width, height = None, None
 
         try:
@@ -100,11 +145,15 @@ def import_image(filename, origin_filepath):
         except Exception as e:
             print(f"Failed to create thumbnail: {e}")
 
+        origin_filename = os.path.basename(origin_filepath)
+
         # 保存到数据库
         image = Image(
+            type = 10,  # movie
             uuid_filename=uuid_filename,
-            original_filename=origin_filepath,
+            original_filename=origin_filename,
             file_size=file_size,
+            md5_hash=small_check_md5,
             mime_type="image/jpeg", # image/png
             width=width,
             height=height,
@@ -115,11 +164,11 @@ def import_image(filename, origin_filepath):
         session.add(image)
         session.commit()
 
-        print(f"处理图片成功 原始名称: {origin_filepath} UUID名称: {uuid_filename} 文件大小: {file_size} 宽度: {width} 高度: {height}")
+        # print(f"处理图片成功 原始名称: {origin_filename} UUID名称: {uuid_filename} 文件大小: {file_size} 宽度: {width} 高度: {height}")
 
     except Exception as e:
         print(f"处理图片失败: {e}")
 
 if __name__ == "__main__":
     init_db()
-    import_images_in_folder('./import_images')
+    import_images_in_folder('./to_import_images')
