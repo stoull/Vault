@@ -5,6 +5,9 @@
 # sensitive data
 static/images/poster/
 models/vault.db
+models/images.db
+
+uploads/
 
 
 ### macOS ###

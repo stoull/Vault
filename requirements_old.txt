@@ -1,0 +1,5 @@
+Flask==3.1.0
+SQLAlchemy==2.0.44
+pillow==11.2.1
+psutil==6.1.1
+Werkzeug==3.1.3

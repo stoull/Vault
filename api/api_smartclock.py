@@ -20,7 +20,7 @@ from .screen_control import ScreenControl
 
 # mqtt相关
 from .smartclock_db_operator import readFridgeRecordsWithPeriod
-from .mqtt_subscriber import start_listening_mqtt
+# from .mqtt_subscriber import start_listening_mqtt
 
 smart_clock_bp = Blueprint('smart_clock', __name__)
 app = Flask(__name__)

@@ -1,6 +1,6 @@
 import sqlite3, os, time, platform, json
 # import Adafruit_DHT
-import psutil
+# import psutil
 from datetime import datetime
 import requests
 
@@ -76,29 +76,31 @@ def writeTheLastInfo(info):
         json.dump(data_to_write, json_file, indent=4)
 
 def get_cpu_usage():
-    return psutil.cpu_percent(interval=1)
-
+    # return psutil.cpu_percent(interval=1)
+    return 0
 
 def get_system_uptime():
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(psutil.boot_time()))
-
+    # return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(psutil.boot_time()))
+    return "0000-00-00 00:00:00"
 
 def get_system_run_duration():
-    # 获取系统启动时间（时间戳）
-    boot_time = psutil.boot_time()
-    # 获取当前时间（时间戳）
-    current_time = time.time()
-
-    # 计算开机时长（秒）
-    uptime_seconds = current_time - boot_time
-    return int(uptime_seconds)
+    # # 获取系统启动时间（时间戳）
+    # boot_time = psutil.boot_time()
+    # # 获取当前时间（时间戳）
+    # current_time = time.time()
+    #
+    # # 计算开机时长（秒）
+    # uptime_seconds = current_time - boot_time
+    # return int(uptime_seconds)
+    return 0
 
 def get_cpu_temperature():
     # 注意：此方法在Windows上可能不适用
     if platform.system() == "Linux":
         try:
             # 读取lm-sensors提供的温度信息
-            temp_info = psutil.sensors_temperatures()
+            # temp_info = psutil.sensors_temperatures()
+            temp_info = 0
             #             print(f"temp_info: {temp_info}")
             if 'cpu_thermal' in temp_info:
                 temp_cpu = temp_info['cpu_thermal'][0].current

@@ -2,7 +2,7 @@ import sqlite3
 
 import werkzeug
 
-from flask import Flask, request, Response, render_template
+from flask import request, Response, render_template
 from jinja2 import Environment, PackageLoader
 from markupsafe import escape
 from flask import make_response
@@ -19,7 +19,9 @@ from api.api_smartclock import smart_clock_bp
 
 from flask_cors import CORS
 
-app = Flask(__name__)
+from app_init import create_app
+
+app = create_app()
 
 # 配置 跨域资源共享（Cross-origin resource sharing)
 # 仅允许指定前端源，生产环境不要用 '*'
