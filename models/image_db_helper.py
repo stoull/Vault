@@ -158,7 +158,7 @@ def import_image(filename, origin_filepath):
             width=width,
             height=height,
             description='',  # 可选描述
-            tags='movie'  # 可选标签
+            tags='movie_douban'  # 可选标签
         )
 
         session.add(image)
