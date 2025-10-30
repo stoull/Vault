@@ -16,18 +16,30 @@ session = Session()
 Base = declarative_base()
 
 # 定义系统字典表模型
-class SystemDict(Base):
-    __tablename__ = "system_dict"
+class ImageTypes(Base):
+    __tablename__ = "image_types"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    table_name = Column(String(255), nullable=False)    # -- 表名
-    column_name = Column(String(255), nullable=False)   # -- 字段名
-    value = Column(String(255), nullable=False)     # -- 字段值
-    meaning = Column(String(255), nullable=False)   # -- 字段含义
-    description = Column(String(255), nullable=False)   # -- 字段描述
-    is_active = Column(Boolean, default=True)    # -- 是否启用
-    created_by = Column(String(100), nullable=False)    # -- 创建人
-    created_time = Column(DateTime, default=datetime.now, onupdate=datetime.now)    # -- 创建时间
+    type_id = Column(Integer, unique=True, nullable=False)    # -- 类型ID
+    type_name = Column(String(255), nullable=False)   # -- 类型名称
+    description = Column(String(255), nullable=False)   # -- 类型描述
+    created_time = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # 建立反向关系（方便从 ImageTypes 查到所有 Image）
+    # ORM关系 - 提供对象导航 是SQLAlchemy的ORM关系属性 存在于Python对象中，不在数据库中
+    # relationship 对象，指向 ImageTypes 模型实例
+    # 用于面向对象编程中的关联访问
+    # 可以不需要显式定义，但定义后可以通过 image_type.images 访问关联的图片列表
+    # 如果需要通过 image_type.images 访问关联的图片列表，可以打开下面的代码，sqlalchemy会自动处理关联
+    # 只定义单向关系注释掉下面的代码，如果是双向关系则保留
+    # images = relationship("Image", back_populates="image_type")
+
+    def to_dict(self):
+        return {
+            'type_id': self.type_id,
+            'type_name': self.type_name,
+            'description': self.description
+        }
 
     def __repr__(self):
         return f'<SystemDict {self.key}>'
@@ -36,7 +48,8 @@ class Image(Base):
     __tablename__ = "images"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(Integer)  # 图片类型，预留字段
+    # 数据库字段 - 存储实际的ID值 外键：关联 image_types 表中的 type_id 存储在 images 表中
+    type_id = Column(Integer, ForeignKey('image_types.type_id'))
     uuid_filename = Column(String(100), unique=True, nullable=False, index=True)
     original_filename = Column(String(255), nullable=False)
     file_size = Column(Integer)
@@ -52,13 +65,23 @@ class Image(Base):
     is_deleted = Column(Boolean, default=False)  # 软删除标记
     tags = Column(String(255))  # 可选：标签，逗号分隔
 
+    # 建立与 ImageTypes 的关联关系
+    # ORM关系 - 提供对象导航 是SQLAlchemy的ORM关系属性 存在于Python对象中，不在数据库中
+    # relationship 对象，指向 ImageTypes 模型实例
+    # 用于面向对象编程中的关联访问
+    # 可通过 image.image_type 访问关联的图片类型
+    # 定义双向关系时使用下面的代码
+    # image_type = relationship("ImageTypes", back_populates="images")
+    # 只定义单向关系
+    image_type = relationship("ImageTypes")
+
     def __repr__(self):
         return f'<Image {self.uuid_filename}>'
 
     def to_dict(self):
         return {
             'id': self.id,
-            'type': self.type,
+            'type_id': self.type_id,
             'tags': self.tags,
             'filename': self.uuid_filename,
             'original_name': self.original_filename,

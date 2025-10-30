@@ -1,5 +1,5 @@
 from PIL import Image as PILImage
-from image_db import session, Image, Base, engine, SystemDict
+from image_db import session, Image, Base, engine, ImageTypes
 import os
 from werkzeug.utils import secure_filename
 import uuid
@@ -32,37 +32,38 @@ def calculate_partial_md5_flexible(file_path, bytes_to_read=512 * 1024):
 
 def init_db():
     # 创建所有表
-    #Base.metadata.create_all(engine)
-
-    # 或者删除所有表重新创建
-    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
-    # 初始化 SystemReadMe 表
-    init_system_dict()
+    # 或者删除所有表重新创建
+    # Base.metadata.drop_all(engine)
+    # Base.metadata.create_all(engine)
 
-def init_system_dict():
-    system_dict_images_type_1 = SystemDict(
-        table_name="images",
-        column_name="type",
-        value="1",
-        meaning="电影项目图片",
-        description="10: movie 20: iclock",
-        is_active=True,
-        created_by="system"
+def add_image_types():
+    images_type_0 = ImageTypes(
+        type_id="0",
+        type_name="others",
+        description="未知类型的图片",
     )
-    system_dict_images_type_2 = SystemDict(
-        table_name="images",
-        column_name="type",
-        value="2",
-        meaning="iclock项目图片",
-        description="10: movie 20: iclock",
-        is_active=True,
-        created_by="system"
+
+    images_type_10 = ImageTypes(
+        type_id="10",
+        type_name="douban_movie",
+        description="豆瓣上拉取的电影图片",
     )
-    session.add(system_dict_images_type_1)
-    session.add(system_dict_images_type_2)
+    images_type_22 = ImageTypes(
+        type_id="22",
+        type_name="GreatAutumn",
+        description="与刘大秋相关的图片",
+    )
+    session.add(images_type_0)
+    session.add(images_type_10)
+    session.add(images_type_22)
     session.commit()
+
+    # 生成应的目录
+    for img_type in [images_type_0, images_type_10, images_type_22]:
+        directory = os.path.join(UPLOAD_FOLDER, f"{img_type.type_id}_{img_type.type_name}")
+        os.makedirs(directory, exist_ok=True)
 
 def create_thumbnail(image_path, size=(300, 300)):
     """创建缩略图"""
@@ -171,4 +172,8 @@ def import_image(filename, origin_filepath):
 
 if __name__ == "__main__":
     init_db()
-    import_images_in_folder('./to_import_images')
+    # 初始化 image type 表
+    # add_image_types()
+
+    # 导入指定文件夹中的图片
+    # import_images_in_folder('./to_import_images')

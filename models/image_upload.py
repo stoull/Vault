@@ -12,11 +12,11 @@ def batch_upload_images(folder_path, upload_url):
             try:
                 with open(file_path, 'rb') as f:
                     files = {'file': (file_path.name, f, 'image/jpeg')}
-                    params = {'type': 22, 'tags': 'your_tags'}
+                    params = {'type_id': 22, 'tags': 'your_tags'}
                     response = requests.post(upload_url, data=params, files=files)
 
                     print(f"上传 {file_path.name}: {response.status_code}")
-                    if response.status_code == 201:
+                    if response.status_code == 200:
                         print(f"成功: {response.json()}")
                     else:
                         print(f"失败: {response.text}")
@@ -27,7 +27,7 @@ def batch_upload_images(folder_path, upload_url):
 
 # 使用示例
 if __name__ == "__main__":
-    batch_upload_images('./to_upload_images', 'http://ahut.site:8090/images/upload')
+    batch_upload_images('./to_upload_images', 'http://127.0.0.1:5002/images/upload')
 
 """
 #!/bin/bash
