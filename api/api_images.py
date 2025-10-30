@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 from PIL import Image as PILImage
-from models.image_db import session, Image
+from models.image_db import session, Image, ImageTypes
 from sqlalchemy import func, or_, and_
 from utils import allowed_file, create_thumbnail
 
@@ -30,10 +30,24 @@ def upload_image():
 
     params = getRequestParamters(request)
 
+    type_id = 0
+    folder_name = '0_others'
     try:
-        type_i = int(params['type'])
+        type_id = int(params['type_id'])
+        image_type = session.query(ImageTypes).filter_by(
+            type_id=type_id
+        ).first()
+        if image_type:
+            folder_name = f"{image_type.type_id}_{image_type.type_name}"
     except (KeyError, ValueError, TypeError):
-        type_i = 0
+        if 'type_name' in params:
+            type_name = params['type_name']
+            image_type = session.query(ImageTypes).filter_by(
+                type_name=type_name
+            ).first()
+            folder_name = '0_other'
+            if image_type:
+                folder_name = f"{image_type.type_id}_{image_type.type_name}"
 
     tags = params.get('tags') or None
 
@@ -44,11 +58,12 @@ def upload_image():
         # 生成唯一文件名
         ext = os.path.splitext(secure_filename(file.filename))[1]
         uuid_filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], uuid_filename)
-
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], folder_name, uuid_filename)
+        thumbnail_path = os.path.join(current_app.config['UPLOAD_FOLDER'], uuid_filename)
+        # print(f'Generated UUID filepath: {filepath}')
         small_check_md5 = calculate_fileobject_md5(file, chunk_size=512 * 1024)
 
-        print(f'Calculated MD5 (first 64KB)- {file.filename} : {small_check_md5}')
+        # print(f'Calculated MD5 (first 64KB)- {file.filename} : {small_check_md5}')
 
         # 检查重复
         duplicate_image = check_image_duplicate(small_check_md5)
@@ -75,13 +90,13 @@ def upload_image():
 
         # 创建缩略图
         try:
-            create_thumbnail(filepath, current_app.config['THUMBNAIL_SIZE'])
+            create_thumbnail(thumbnail_path, current_app.config['THUMBNAIL_SIZE'])
         except Exception as e:
             current_app.logger.error(f"Failed to create thumbnail: {e}")
 
         # 保存到数据库
         image = Image(
-            type=type_i,
+            type_id=type_id,
             tags=tags,
             uuid_filename=uuid_filename,
             original_filename=file.filename,
@@ -99,7 +114,7 @@ def upload_image():
         return jsonify({
             'success': True,
             'data': image.to_dict()
-        }), 201
+        }), 200
 
     except Exception as e:
         session.rollback()
@@ -121,18 +136,20 @@ def get_image(filename):
     ).first()
 
     if image is None:
-        print('--- Image Info ---', filename)
+        # 尝试通过原始文件名查找-不推荐，可能有重复
         image = session.query(Image).filter_by(
             original_filename=filename,
             is_deleted=False
         ).first()
         file_on_disk_name = image.uuid_filename if image else None
 
-    print(image)
-
     if not image:
         return jsonify({'error': 'Image not found'}), 404
 
+    folder_name = '0_others'
+    if image.image_type:
+        folder_name = f"{image.image_type.type_id}_{image.image_type.type_name}"
+    file_on_disk_name = os.path.join(folder_name, file_on_disk_name)
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_on_disk_name)
     if not os.path.exists(filepath):
         return jsonify({'error': 'File not found on disk'}), 404
