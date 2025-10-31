@@ -79,13 +79,18 @@ class Image(Base):
         return f'<Image {self.uuid_filename}>'
 
     def to_dict(self):
+        folder_name = "0_others"
+        if self.image_type is not None:
+            folder_name = f"{self.image_type.type_id}_{self.image_type.type_name}"
+        url_str = f"/images/{folder_name}/{self.uuid_filename}"
+
         return {
             'id': self.id,
             'type_id': self.type_id,
             'tags': self.tags,
             'filename': self.uuid_filename,
             'original_name': self.original_filename,
-            'url': f"/images/{self.uuid_filename}",
+            'url': url_str,
             'thumbnail_url': f"/images/thumbnails/{self.uuid_filename}",
             'size': self.file_size,
             'md5_hash': self.md5_hash,
@@ -95,8 +100,7 @@ class Image(Base):
                 'width': self.width,
                 'height': self.height
             } if self.width and self.height else None,
-            'description': self.description,
-            'upload_time': self.upload_time.isoformat()
+            'description': self.description
         }
 
     @staticmethod
