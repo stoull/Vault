@@ -6,7 +6,7 @@ from sqlalchemy import inspect, func, text
 
 # 创建数据库引擎
 database_url = "sqlite:///./models/images.db"
-engine = create_engine(database_url, echo=True)
+engine = create_engine(database_url, echo=False)
 
 # 创建Session
 Session = sessionmaker(bind=engine)
