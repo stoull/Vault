@@ -16,7 +16,7 @@ session = Session()
 Base = declarative_base()
 
 # 定义系统字典表模型
-class ImageTypes(Base):
+class ImageType(Base):
     __tablename__ = "image_types"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -73,7 +73,7 @@ class Image(Base):
     # 定义双向关系时使用下面的代码
     # image_type = relationship("ImageTypes", back_populates="images")
     # 只定义单向关系
-    image_type = relationship("ImageTypes")
+    image_type = relationship("ImageType")
 
     def __repr__(self):
         return f'<Image {self.uuid_filename}>'

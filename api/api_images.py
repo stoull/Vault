@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 from PIL import Image as PILImage
-from models.image_db import session, Image, ImageTypes
+from models.image_db import session, Image, ImageType
 from sqlalchemy import func, or_, and_
 from utils import allowed_file, create_thumbnail
 
@@ -34,7 +34,7 @@ def upload_image():
     folder_name = '0_others'
     try:
         type_id = int(params['type_id'])
-        image_type = session.query(ImageTypes).filter_by(
+        image_type = session.query(ImageType).filter_by(
             type_id=type_id
         ).first()
         if image_type:
@@ -42,7 +42,7 @@ def upload_image():
     except (KeyError, ValueError, TypeError):
         if 'type_name' in params:
             type_name = params['type_name']
-            image_type = session.query(ImageTypes).filter_by(
+            image_type = session.query(ImageType).filter_by(
                 type_name=type_name
             ).first()
             folder_name = '0_other'
@@ -54,6 +54,7 @@ def upload_image():
     if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
         return jsonify({'error': 'File type not allowed'}), 400
 
+    filepath = None
     try:
         # 生成唯一文件名
         ext = os.path.splitext(secure_filename(file.filename))[1]
@@ -119,7 +120,7 @@ def upload_image():
     except Exception as e:
         session.rollback()
         # 删除已上传的文件
-        if os.path.exists(filepath):
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
         current_app.logger.error(f"Upload failed: {e}")
         return jsonify({'error': 'Upload failed', 'message': str(e)}), 500

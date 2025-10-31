@@ -1,6 +1,6 @@
 from PIL import Image as PILImage
-from image_db import session, Image, Base, engine, ImageTypes
-import os
+from image_db import session, Image, Base, engine, ImageType
+import os, shutil
 from werkzeug.utils import secure_filename
 import uuid
 import hashlib
@@ -38,40 +38,48 @@ def init_db():
     # Base.metadata.drop_all(engine)
     # Base.metadata.create_all(engine)
 
-def add_image_types():
-    images_type_0 = ImageTypes(
-        type_id="0",
+
+IMAGE_TYPES = [
+    ImageType(
+        type_id=0,
         type_name="others",
         description="未知类型的图片",
-    )
-
-    images_type_10 = ImageTypes(
-        type_id="10",
+    ),
+    ImageType(
+        type_id=10,
         type_name="douban_movie",
         description="豆瓣上拉取的电影图片",
-    )
-    images_type_22 = ImageTypes(
-        type_id="22",
+    ),
+    ImageType(
+        type_id=22,
         type_name="GreatAutumn",
         description="与刘大秋相关的图片",
     )
-    session.add(images_type_0)
-    session.add(images_type_10)
-    session.add(images_type_22)
-    session.commit()
+]
 
+def add_image_types():
     # 生成应的目录
-    for img_type in [images_type_0, images_type_10, images_type_22]:
+    for img_type in IMAGE_TYPES:
+        session.add(img_type)
         directory = os.path.join(UPLOAD_FOLDER, f"{img_type.type_id}_{img_type.type_name}")
         os.makedirs(directory, exist_ok=True)
+    session.commit()
 
-def create_thumbnail(image_path, size=(300, 300)):
-    """创建缩略图"""
+def create_thumbnail(image_path, thumbnail_dir, size=(300, 300)):
+    """创建缩略图在本目录"""
     # 创建缩略图目录
+    """
     thumbnail_dir = os.path.join(os.path.dirname(image_path), 'thumbnails')
     os.makedirs(thumbnail_dir, exist_ok=True)
 
     # 生成缩略图路径
+    filename = os.path.basename(image_path)
+    thumbnail_path = os.path.join(thumbnail_dir, filename)
+    """
+
+    """创建缩略图在目标目录"""
+    thumbnail_dir = os.path.join(thumbnail_dir, 'thumbnails')
+    os.makedirs(thumbnail_dir, exist_ok=True)
     filename = os.path.basename(image_path)
     thumbnail_path = os.path.join(thumbnail_dir, filename)
 
@@ -95,8 +103,11 @@ def move_file_os(source_path, destination_path):
             os.makedirs(dest_dir)
 
         # 移动文件
-        os.rename(source_path, destination_path)
-        # print(f"文件已从 {source_path} 移动到 {destination_path}")
+        # os.rename(source_path, destination_path)
+        # 复制文件
+        shutil.copy(source_path, destination_path)
+
+        # print(f"文件已从 {source_path} 移动或者复制到 {destination_path}")
         return True
     except FileNotFoundError:
         print(f"源文件 {source_path} 不存在")
@@ -110,22 +121,33 @@ def normalize_filename(filename):
     name, ext = os.path.splitext(filename)
     return name + ext.lower()
 
-def import_images_in_folder(folder_path):
+def import_images_in_folder(image_type_id, folder_path):
     """导入指定文件夹中的所有图片到数据库"""
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
     for filename in os.listdir(folder_path):
         normalized_name = normalize_filename(filename)
         if any(normalized_name.endswith(ext) for ext in allowed_extensions):
             filepath = os.path.join(folder_path, normalized_name)
-            import_image(normalized_name, filepath)
+            import_image(image_type_id, normalized_name, filepath)
 
-def import_image(filename, origin_filepath):
+def import_image(image_type_id, filename, origin_filepath):
     try:
         # 生成唯一文件名
+        image_type_name = None
+        # 生成应的目录
+        for img_type in IMAGE_TYPES:
+            if img_type.type_id == image_type_id:
+                image_type_name = img_type.type_name
+                break
+
+        if image_type_name is None:
+            print(f"导入图片时，图片类型ID未设置或是未知的类型: {image_type_id} 详见IMAGE_TYPES类型列表")
+            return
+
         ext = os.path.splitext(secure_filename(filename))[1]
         uuid_filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = os.path.join(UPLOAD_FOLDER, uuid_filename)
-
+        image_folder = f"{image_type_id}_{image_type_name}"
+        filepath = os.path.join(UPLOAD_FOLDER, image_folder, uuid_filename)
         # 保存原图
         move_file_os(origin_filepath, filepath)
 
@@ -142,7 +164,7 @@ def import_image(filename, origin_filepath):
 
         # 创建缩略图
         try:
-            create_thumbnail(filepath, THUMBNAIL_SIZE)
+            create_thumbnail(filepath, UPLOAD_FOLDER, THUMBNAIL_SIZE)
         except Exception as e:
             print(f"Failed to create thumbnail: {e}")
 
@@ -150,7 +172,7 @@ def import_image(filename, origin_filepath):
 
         # 保存到数据库
         image = Image(
-            type = 10,  # movie
+            type_id = 10,  # douban_movie
             uuid_filename=uuid_filename,
             original_filename=origin_filename,
             file_size=file_size,
@@ -171,9 +193,11 @@ def import_image(filename, origin_filepath):
         print(f"处理图片失败: {e}")
 
 if __name__ == "__main__":
+    # 要在项目根目录下运行此脚本
+
     init_db()
     # 初始化 image type 表
-    # add_image_types()
+    add_image_types()
 
     # 导入指定文件夹中的图片
-    # import_images_in_folder('./to_import_images')
+    import_images_in_folder(image_type_id=10, folder_path='./to_import_images')

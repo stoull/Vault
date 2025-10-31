@@ -1,5 +1,5 @@
 from PIL import Image as PILImage
-from image_db import session, Image, Base, engine, ImageTypes
+from image_db import session, Image, Base, engine, ImageType
 import os
 from werkzeug.utils import secure_filename
 import uuid
@@ -43,4 +43,3 @@ if __name__ == "__main__":
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
             UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
             filepath = os.path.join(UPLOAD_FOLDER, type_id_type_name, img.uuid_filename)
-            pr
