@@ -200,4 +200,4 @@ if __name__ == "__main__":
     add_image_types()
 
     # 导入指定文件夹中的图片
-    import_images_in_folder(image_type_id=10, folder_path='./to_import_images')
+    # import_images_in_folder(image_type_id=10, folder_path='./to_import_images')

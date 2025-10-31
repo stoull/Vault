@@ -126,10 +126,13 @@ def upload_image():
         return jsonify({'error': 'Upload failed', 'message': str(e)}), 500
 
 
-@image_bp.route('/<filename>', methods=['GET'])
-def get_image(filename):
+@image_bp.route('/<path:filepath>', methods=['GET'])
+def get_image(filepath):
     """通过UUID文件名获取图片"""
     # 检查数据库中是否存在且未删除
+
+    # 提取文件名
+    filename = os.path.basename(filepath)
     file_on_disk_name = filename
     image = session.query(Image).filter_by(
         uuid_filename=filename,
