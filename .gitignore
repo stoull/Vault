@@ -6,9 +6,11 @@
 static/images/poster/
 models/vault.db
 models/images.db
+models/images_backup.db
 
 uploads/
-
+uploads_backup/
+to_import_images/
 
 ### macOS ###
 # General

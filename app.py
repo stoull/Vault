@@ -38,7 +38,7 @@ env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 app.register_blueprint(api_bp, url_prefix='/api/v1')
-app.register_blueprint(image_bp, url_prefix='/images')
+app.register_blueprint(image_bp, url_prefix='/image')
 app.register_blueprint(smart_clock_bp, url_prefix='/api/smart-clock')
 
 @app.before_request
