@@ -11,6 +11,7 @@ models/images_backup.db
 uploads/
 uploads_backup/
 to_import_images/
+models/to_upload_images/
 
 ### macOS ###
 # General

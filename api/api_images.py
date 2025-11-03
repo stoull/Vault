@@ -5,9 +5,9 @@ import uuid
 from PIL import Image as PILImage
 from models.image_db import session, Image, ImageType
 from sqlalchemy import func, or_, and_
-from utils import allowed_file, create_thumbnail
+from utils import allowed_file, create_thumbnail_diff_dir
 
-from models.vt_request import getRequestParamters
+from models.vt_request import get_request_parameters
 from utils import calculate_partial_md5_flexible, calculate_fileobject_md5
 
 image_bp = Blueprint('image', __name__)
@@ -17,6 +17,7 @@ def check_image_duplicate(image_md5):
     existing_image = session.query(Image).filter_by(md5_hash=image_md5).first()
     return existing_image or None
 
+# 单个图片上传接口
 @image_bp.route('/upload', methods=['POST'])
 def upload_image():
     """上传图片并保存元数据到数据库"""
@@ -28,7 +29,7 @@ def upload_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    params = getRequestParamters(request)
+    params = get_request_parameters(request)
 
     type_id = 0
     folder_name = '0_others'
@@ -60,7 +61,7 @@ def upload_image():
         ext = os.path.splitext(secure_filename(file.filename))[1]
         uuid_filename = f"{uuid.uuid4().hex}{ext}"
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], folder_name, uuid_filename)
-        thumbnail_path = os.path.join(current_app.config['UPLOAD_FOLDER'], uuid_filename)
+        thumbnail_dir = current_app.config['UPLOAD_FOLDER']
         # print(f'Generated UUID filepath: {filepath}')
         small_check_md5 = calculate_fileobject_md5(file, chunk_size=512 * 1024)
 
@@ -91,7 +92,7 @@ def upload_image():
 
         # 创建缩略图
         try:
-            create_thumbnail(thumbnail_path, current_app.config['THUMBNAIL_SIZE'])
+            create_thumbnail_diff_dir(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
         except Exception as e:
             current_app.logger.error(f"Failed to create thumbnail: {e}")
 
@@ -124,6 +125,102 @@ def upload_image():
             os.remove(filepath)
         current_app.logger.error(f"Upload failed: {e}")
         return jsonify({'error': 'Upload failed', 'message': str(e)}), 500
+
+# 多图片上传接口
+@image_bp.route('/multiple_upload', methods=['POST'])
+def upload_multiple_images():
+    """上传图片并保存元数据到数据库，支持单文件和多文件上传，增加文件个数及文件大小的验证处理"""
+    MAX_FILES = 10  # 最大文件数，可根据需求调整
+    MAX_FILE_SIZE = 15 * 1024 * 1024  # 单文件最大10MB，可根据需求调整
+
+    files = request.files.getlist('file')
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No file(s) selected or filename not set'}), 400
+    if len(files) > MAX_FILES:
+        return jsonify({'error': f'Too many files. Maximum allowed is {MAX_FILES}.'}), 400
+
+    params = get_request_parameters(request)
+    type_id = 0
+    folder_name = '0_others'
+    try:
+        type_id = int(params['type_id'])
+        image_type = session.query(ImageType).filter_by(type_id=type_id).first()
+        if image_type:
+            folder_name = f"{image_type.type_id}_{image_type.type_name}"
+    except (KeyError, ValueError, TypeError):
+        if 'type_name' in params:
+            type_name = params['type_name']
+            image_type = session.query(ImageType).filter_by(type_name=type_name).first()
+            folder_name = '0_other'
+            if image_type:
+                folder_name = f"{image_type.type_id}_{image_type.type_name}"
+
+    tags = params.get('tags') or None
+    results = []
+    for file in files:
+        if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
+            results.append({'filename': file.filename, 'error': 'File type not allowed'})
+            continue
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        if file_size > MAX_FILE_SIZE:
+            results.append({'filename': file.filename, 'error': f'File size exceeds {MAX_FILE_SIZE // (1024*1024)}MB'})
+            continue
+        filepath = None
+        try:
+            ext = os.path.splitext(secure_filename(file.filename))[1]
+            uuid_filename = f"{uuid.uuid4().hex}{ext}"
+            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], folder_name, uuid_filename)
+            thumbnail_dir = current_app.config['UPLOAD_FOLDER']
+            small_check_md5 = calculate_fileobject_md5(file, chunk_size=512 * 1024)
+            duplicate_image = check_image_duplicate(small_check_md5)
+            if duplicate_image:
+                results.append({
+                    'filename': file.filename,
+                    'success': True,
+                    'message': 'Duplicate image found',
+                    'data': duplicate_image.to_dict()
+                })
+                continue
+            file.save(filepath)
+            # file_size 已在前面获取
+            width, height = None, None
+            try:
+                with PILImage.open(filepath) as img:
+                    width, height = img.size
+            except Exception as e:
+                current_app.logger.warning(f"Cannot get image dimensions: {e}")
+            try:
+                create_thumbnail_diff_dir(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
+            except Exception as e:
+                current_app.logger.error(f"Failed to create thumbnail: {e}")
+            image = Image(
+                type_id=type_id,
+                tags=tags,
+                uuid_filename=uuid_filename,
+                original_filename=file.filename,
+                file_size=file_size,
+                md5_hash=small_check_md5,
+                mime_type=file.content_type,
+                width=width,
+                height=height,
+                description=request.form.get('description')
+            )
+            session.add(image)
+            session.commit()
+            results.append({
+                'filename': file.filename,
+                'success': True,
+                'data': image.to_dict()
+            })
+        except Exception as e:
+            session.rollback()
+            if filepath and os.path.exists(filepath):
+                os.remove(filepath)
+            current_app.logger.error(f"Upload failed: {e}")
+            results.append({'filename': file.filename, 'error': 'Upload failed', 'message': str(e)})
+    return jsonify({'results': results}), 200
 
 
 @image_bp.route('/<path:filepath>', methods=['GET'])
