@@ -5,12 +5,24 @@ import uuid
 from PIL import Image as PILImage
 from models.image_db import session, Image, ImageType
 from sqlalchemy import func, or_, and_
-from utils import allowed_file, create_thumbnail_diff_dir
+from utils import allowed_file, create_thumbnail_diff_dir, calculate_fileobject_md5
 
-from models.vt_request import get_request_parameters
-from utils import calculate_partial_md5_flexible, calculate_fileobject_md5
+from models.vt_request import get_request_parameters, get_value_from_request_params
+from .api_response import ApiResponse
+from .error_handlers import register_global_error_handlers
+
+from flask import Blueprint, request, jsonify
+from .exceptions import (
+    ValidationException,
+    ResourceNotFoundException,
+    BusinessRuleException
+)
+from .error_codes import ErrorCodes
 
 image_bp = Blueprint('image', __name__)
+
+# 全局错误处理，对所有blueprint都生效
+register_global_error_handlers(image_bp)
 
 def check_image_duplicate(image_md5):
     """检查文件是否重复"""
@@ -222,7 +234,6 @@ def upload_multiple_images():
             results.append({'filename': file.filename, 'error': 'Upload failed', 'message': str(e)})
     return jsonify({'results': results}), 200
 
-
 @image_bp.route('/<path:filepath>', methods=['GET'])
 def get_image(filepath):
     """通过UUID文件名获取图片"""
@@ -433,3 +444,105 @@ def get_stats():
         }), 200
     except Exception as e:
         return jsonify({'error': 'Failed to get stats', 'message': str(e)}), 500
+
+
+# 获取图片类型列表
+@image_bp.route('/types', methods=['GET'])
+def get_image_types():
+    """获取所有图片类型"""
+
+    # 获取授权码
+    auth_code, error = get_value_from_request_params(request, 'AuthenticationCode')
+    if error:
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+    if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+
+    image_types = session.query(ImageType).all()
+    types_list = [{
+        'type_id': img_type.type_id,
+        'type_name': img_type.type_name,
+        'description': img_type.description
+    } for img_type in image_types]
+
+    return jsonify({
+        'success': True,
+        'data': types_list
+    }), 200
+
+@image_bp.route('/types', methods=['POST'])
+def create_image_types():
+    """创建新的图片类型"""
+    # 获取授权码
+    auth_code, error = get_value_from_request_params(request, 'AuthenticationCode')
+    if error:
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+    if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+
+    data = request.get_json()
+    if not data or 'type_id' not in data or 'type_name' not in data:
+        return jsonify({'error': 'type_id and type_name are required'}), 400
+
+    type_id = data['type_id']
+    type_name = data['type_name']
+    description = data.get('description') or ''
+
+    existing_type = session.query(ImageType).filter(
+        or_(
+            ImageType.type_id == type_id,
+            ImageType.type_name == type_name
+        )
+    ).first()
+    if existing_type:
+        return jsonify({'error': 'Image type with same ID or name already exists'}), 400
+
+    try:
+        new_type = ImageType(
+            type_id=type_id,
+            type_name=type_name,
+            description=description
+        )
+        session.add(new_type)
+        session.commit()
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'type_id': new_type.type_id,
+                'type_name': new_type.type_name,
+                'description': new_type.description
+            }
+        }), 201
+
+    except Exception as e:
+        session.rollback()
+        current_app.logger.error(f"Create image type failed: {e}")
+        return jsonify({'error': 'Create image type failed', 'message': str(e)}), 500
+
+@image_bp.route('/types/<int:type_id>', methods=['GET'])
+def get_image_types_with_id(type_id):
+    return f"获取 type {type_id}"
+
+# 更新 type
+@image_bp.route('/types/<int:type_id>', methods=['PUT'])
+def update_image_type(type_id):
+    # 获取授权码
+    auth_code, error = get_value_from_request_params(request, 'AuthenticationCode')
+    if error:
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+    if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+
+    return f"更新 type {type_id}"
+
+# 删除 type
+@image_bp.route('/types/<int:type_id>', methods=['DELETE'])
+def delete_image_type(type_id):
+    # 获取授权码
+    auth_code, error = get_value_from_request_params(request, 'AuthenticationCode')
+    if error:
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+    if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
+        raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
+    return f"删除 type {type_id}"

@@ -23,6 +23,22 @@ def getRequestParamters(req):
         return data
 
 
+def get_value_from_request_params(req, key):
+    params = get_request_parameters(req)
+    """
+    从参数字典中安全获取参数
+    """
+    # 使用 get() 并检查空值
+    value_for_key = params.get(key)
+
+    if value_for_key is None:
+        return None, "参数不存在"
+
+    if not value_for_key:
+        return None, "值存在但为空"
+
+    return value_for_key, None
+
 def get_request_parameters(req):
     """
     统一获取请求参数
