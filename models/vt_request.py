@@ -22,6 +22,9 @@ def getRequestParamters(req):
                 data[key] = value
         return data
 
+def get_value_from_request_params_without_error(req, key):
+    result, error = get_value_from_request_params(req, key)
+    return result
 
 def get_value_from_request_params(req, key):
     params = get_request_parameters(req)

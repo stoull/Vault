@@ -7,7 +7,7 @@ from models.image_db import session, Image, ImageType
 from sqlalchemy import func, or_, and_
 from utils import allowed_file, create_thumbnail_diff_dir, calculate_fileobject_md5
 
-from models.vt_request import get_request_parameters, get_value_from_request_params
+from models.vt_request import get_request_parameters, get_value_from_request_params, get_value_from_request_params_without_error
 from .api_response import ApiResponse
 from .error_handlers import register_global_error_handlers
 
@@ -41,29 +41,20 @@ def upload_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    params = get_request_parameters(request)
-
-    type_id = 0
-    folder_name = '0_others'
-    try:
-        type_id = int(params['type_id'])
-        image_type = session.query(ImageType).filter_by(
-            type_id=type_id
-        ).first()
-        if image_type:
-            folder_name = f"{image_type.type_id}_{image_type.type_name}"
-    except (KeyError, ValueError, TypeError):
-        if 'type_name' in params:
-            type_name = params['type_name']
-            image_type = session.query(ImageType).filter_by(
-                type_name=type_name
-            ).first()
-            folder_name = '0_other'
-            if image_type:
-                folder_name = f"{image_type.type_id}_{image_type.type_name}"
-
-    tags = params.get('tags') or None
-
+    type_id, error1 = get_value_from_request_params(request, 'type_id')
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    if error1 and error2:
+        raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
+    image_type = session.query(ImageType).filter(
+        or_(
+            ImageType.type_id == type_id,
+            ImageType.type_name == type_name
+        )
+    ).first()
+    if not image_type:
+        raise ResourceNotFoundException(resource_type="图片类型不存在", resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
+    folder_name = f"{image_type.type_id}_{image_type.type_name}"
+    tags = get_value_from_request_params_without_error(request, 'tags') or None
     if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
         return jsonify({'error': 'File type not allowed'}), 400
 
@@ -151,23 +142,23 @@ def upload_multiple_images():
     if len(files) > MAX_FILES:
         return jsonify({'error': f'Too many files. Maximum allowed is {MAX_FILES}.'}), 400
 
-    params = get_request_parameters(request)
-    type_id = 0
-    folder_name = '0_others'
-    try:
-        type_id = int(params['type_id'])
-        image_type = session.query(ImageType).filter_by(type_id=type_id).first()
-        if image_type:
-            folder_name = f"{image_type.type_id}_{image_type.type_name}"
-    except (KeyError, ValueError, TypeError):
-        if 'type_name' in params:
-            type_name = params['type_name']
-            image_type = session.query(ImageType).filter_by(type_name=type_name).first()
-            folder_name = '0_other'
-            if image_type:
-                folder_name = f"{image_type.type_id}_{image_type.type_name}"
+    type_id, error1 = get_value_from_request_params(request, 'type_id')
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    if error1 and error2:
+        raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
+    image_type = session.query(ImageType).filter(
+        or_(
+            ImageType.type_id == type_id,
+            ImageType.type_name == type_name
+        )
+    ).first()
+    
+    if not image_type:
+        raise ResourceNotFoundException(resource_type="图片类型不存在", resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
 
-    tags = params.get('tags') or None
+    folder_name = f"{image_type.type_id}_{image_type.type_name}"
+    
+    tags = get_value_from_request_params_without_error(request, 'tags') or None
     results = []
     for file in files:
         if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
@@ -465,10 +456,7 @@ def get_image_types():
         'description': img_type.description
     } for img_type in image_types]
 
-    return jsonify({
-        'success': True,
-        'data': types_list
-    }), 200
+    return ApiResponse.success(data=types_list)
 
 @image_bp.route('/types', methods=['POST'])
 def create_image_types():
@@ -480,18 +468,24 @@ def create_image_types():
     if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
         raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
 
-    data = request.get_json()
-    if not data or 'type_id' not in data or 'type_name' not in data:
-        return jsonify({'error': 'type_id and type_name are required'}), 400
 
-    type_id = data['type_id']
-    type_name = data['type_name']
-    description = data.get('description') or ''
+    type_id, error1 = get_value_from_request_params(request, 'type_id')
+    if error:
+        raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
+
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    if error2:
+        raise ValidationException(message="获取type_name失败", error_code=ErrorCodes.MISSING_PARAMETER)
+
+    # 检查type_name是否含有特殊字符，符合用来命名目录以文件夹的要求
+    if check_special_characters(type_name):
+        raise ValidationException(message="type_name参数不能含有特殊字符，并且不能多于50个字符", error_code=ErrorCodes.INVALID_PARAMETER)
+
+    description = get_value_from_request_params_without_error(request, 'description')
 
     existing_type = session.query(ImageType).filter(
         or_(
-            ImageType.type_id == type_id,
-            ImageType.type_name == type_name
+            ImageType.type_id == type_id
         )
     ).first()
     if existing_type:
@@ -506,14 +500,15 @@ def create_image_types():
         session.add(new_type)
         session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': {
-                'type_id': new_type.type_id,
-                'type_name': new_type.type_name,
-                'description': new_type.description
-            }
-        }), 201
+        # 创建相应的目录
+        directory = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{new_type.type_id}_{new_type.type_name}")
+        os.makedirs(directory, exist_ok=True)
+
+        return ApiResponse.success(data={
+            'type_id': new_type.type_id,
+            'type_name': new_type.type_name,
+            'description': new_type.description
+        }, message="图片类型创建成功", code=200)
 
     except Exception as e:
         session.rollback()
@@ -522,7 +517,23 @@ def create_image_types():
 
 @image_bp.route('/types/<int:type_id>', methods=['GET'])
 def get_image_types_with_id(type_id):
-    return f"获取 type {type_id}"
+    image_type = session.query(ImageType).filter_by(type_id=type_id).first()
+    if not image_type:
+        msg = f"图片类型 type_id: {type_id} 不存在"
+        raise ResourceNotFoundException(resource_type=msg, resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
+    return ApiResponse.success(data={
+        'type_id': image_type.type_id,
+        'type_name': image_type.type_name,
+        'description': image_type.description
+    })
+
+
+def check_special_characters(input_string):
+    """检查字符串中是否含有特殊字符 并且不能多于50个字符"""
+    if len(input_string) > 50:
+        return True
+    special_characters = r'\/:*?"<>|'
+    return any(c in input_string for c in special_characters)
 
 # 更新 type
 @image_bp.route('/types/<int:type_id>', methods=['PUT'])
@@ -534,7 +545,50 @@ def update_image_type(type_id):
     if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
         raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
 
-    return f"更新 type {type_id}"
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    # 检查type_name是否含有特殊字符，符合用来命名目录以文件夹的要求
+    if check_special_characters(type_name):
+        raise ValidationException(message="type_name参数不能含有特殊字符，并且不能多于50个字符", error_code=ErrorCodes.INVALID_PARAMETER)
+
+    description = get_value_from_request_params_without_error(request, 'description')
+    if error2:
+        raise ValidationException(message="没有传type_name参数，只支持修改type_name及tags", error_code=ErrorCodes.MISSING_PARAMETER)
+
+    image_type = session.query(ImageType).filter_by(type_id=type_id).first()
+    if not image_type:
+        msg = f"图片类型 type_id: {type_id} 不存在 只支持修改type_name及tags"
+        raise ResourceNotFoundException(resource_type=msg, resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
+
+    related_images_count = session.query(Image).filter(Image.type_id == image_type.type_id).count()
+    if related_images_count > 0:
+        raise BusinessRuleException(message="无法更新该图片类型，存在关联的图片，因安全的问题请联系管理员处理关联的图片-只支持修改type_name及tags", error_code=ErrorCodes.BUSINESS_RULE_VIOLATION)
+
+    # 删除原有目录并创建新目录
+    old_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{image_type.type_id}_{image_type.type_name}")
+    new_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{image_type.type_id}_{type_name}")
+    try:
+        if os.path.exists(old_directory):
+            os.rename(old_directory, new_directory) # 重命名目录
+        else:
+            os.makedirs(new_directory, exist_ok=True)
+    except Exception as e:
+        current_app.logger.error(f"Failed to rename/create directory: {e}")
+        raise BusinessRuleException(message="更新图片类型失败，无法重命名目录", error_code=ErrorCodes.BUSINESS_RULE_VIOLATION)
+
+    # 更新允许的字段
+    if type_name:
+        image_type.type_name = type_name
+    if description:
+        image_type.description = description
+
+    session.commit()
+    session.refresh(image_type)
+
+    return ApiResponse.success(data={
+        'type_id': image_type.type_id,
+        'type_name': image_type.type_name,
+        'description': image_type.description
+    }, message="图片类型更新成功")
 
 # 删除 type
 @image_bp.route('/types/<int:type_id>', methods=['DELETE'])
@@ -545,4 +599,26 @@ def delete_image_type(type_id):
         raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
     if auth_code != current_app.config.get('IMAGE_SERVICE_AUTH_CODE'):
         raise ValidationException(message="获取AuthenticationCode失败", error_code=ErrorCodes.PERMISSION_DENIED)
-    return f"删除 type {type_id}"
+
+    image_type = session.query(ImageType).filter_by(type_id=type_id).first()
+    if not image_type:
+        msg = f"图片类型 type_id: {type_id} 不存在"
+        raise ResourceNotFoundException(resource_type=msg, resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
+
+    related_images_count = session.query(Image).filter(Image.type_id == image_type.type_id).count()
+    if related_images_count > 0:
+        raise BusinessRuleException(message="无法删除该图片类型，存在关联的图片", error_code=ErrorCodes.BUSINESS_RULE_VIOLATION)
+
+    try:
+        # 删除图片对应的目录
+        directory = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{image_type.type_id}_{image_type.type_name}")
+        if os.path.exists(directory):
+            os.rmdir(directory)
+        session.delete(image_type)
+        session.commit()
+        return  ApiResponse.success(message="图片类型删除成功")
+    except Exception as e:
+        session.rollback()
+        return ApiResponse.error(message=f"图片类型删除失败: {e}")
+
+
