@@ -4,8 +4,9 @@ import os
 import uuid
 from PIL import Image as PILImage
 from models.image_db import session, Image, ImageType
+from  models.image_db_helper import ImageDBHelper
 from sqlalchemy import func, or_, and_
-from utils import allowed_file, create_thumbnail_diff_dir, calculate_fileobject_md5
+from models.image_db_utils import allowed_file, calculate_fileobject_md5
 
 from models.vt_request import get_request_parameters, get_value_from_request_params, get_value_from_request_params_without_error
 from .api_response import ApiResponse
@@ -56,7 +57,7 @@ def upload_image():
     folder_name = f"{image_type.type_id}_{image_type.type_name}"
     tags = get_value_from_request_params_without_error(request, 'tags') or None
     if not file or not allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
-        return jsonify({'error': 'File type not allowed'}), 400
+        raise ResourceNotFoundException(resource_type="不允许的文件类型", resource_id=ErrorCodes.INVALID_PARAMETER)
 
     filepath = None
     try:
@@ -73,11 +74,7 @@ def upload_image():
         # 检查重复
         duplicate_image = check_image_duplicate(small_check_md5)
         if duplicate_image:
-            return jsonify({
-                'success': True,
-                'message': 'Duplicate image found',
-                'data': duplicate_image.to_dict()
-            }), 200
+            return ApiResponse.success(message="Duplicate image found", data=duplicate_image.to_dict())
 
         # 保存原图
         file.save(filepath)
@@ -95,7 +92,7 @@ def upload_image():
 
         # 创建缩略图
         try:
-            create_thumbnail_diff_dir(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
+            ImageDBHelper.create_thumbnail(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
         except Exception as e:
             current_app.logger.error(f"Failed to create thumbnail: {e}")
 
@@ -116,10 +113,7 @@ def upload_image():
         session.add(image)
         session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': image.to_dict()
-        }), 200
+        return ApiResponse.success(data=image.to_dict(), message="Image uploaded successfully")
 
     except Exception as e:
         session.rollback()
@@ -138,9 +132,9 @@ def upload_multiple_images():
 
     files = request.files.getlist('file')
     if not files or files[0].filename == '':
-        return jsonify({'error': 'No file(s) selected or filename not set'}), 400
+        raise ValidationException(message='No file(s) selected or filename not set', error_code=ErrorCodes.MISSING_PARAMETER)
     if len(files) > MAX_FILES:
-        return jsonify({'error': f'Too many files. Maximum allowed is {MAX_FILES}.'}), 400
+        raise ValidationException(message=f'Too many files. Maximum allowed is {MAX_FILES}.', error_code=ErrorCodes.INVALID_PARAMETER)
 
     type_id, error1 = get_value_from_request_params(request, 'type_id')
     type_name, error2 = get_value_from_request_params(request, 'type_name')
@@ -195,7 +189,7 @@ def upload_multiple_images():
             except Exception as e:
                 current_app.logger.warning(f"Cannot get image dimensions: {e}")
             try:
-                create_thumbnail_diff_dir(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
+                ImageDBHelper.create_thumbnail(filepath, thumbnail_dir, current_app.config['THUMBNAIL_SIZE'])
             except Exception as e:
                 current_app.logger.error(f"Failed to create thumbnail: {e}")
             image = Image(
@@ -223,7 +217,7 @@ def upload_multiple_images():
                 os.remove(filepath)
             current_app.logger.error(f"Upload failed: {e}")
             results.append({'filename': file.filename, 'error': 'Upload failed', 'message': str(e)})
-    return jsonify({'results': results}), 200
+    return ApiResponse.success(data=results, message="Multiple image upload processed")
 
 @image_bp.route('/<path:filepath>', methods=['GET'])
 def get_image(filepath):
@@ -247,7 +241,7 @@ def get_image(filepath):
         file_on_disk_name = image.uuid_filename if image else None
 
     if not image:
-        return jsonify({'error': 'Image not found'}), 404
+        raise ResourceNotFoundException(resource_type="Image not found", resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
 
     folder_name = '0_others'
     if image.image_type:
@@ -255,10 +249,9 @@ def get_image(filepath):
     file_on_disk_name = os.path.join(folder_name, file_on_disk_name)
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_on_disk_name)
     if not os.path.exists(filepath):
-        return jsonify({'error': 'File not found on disk'}), 404
+        raise ResourceNotFoundException(resource_type="File not found on disk", resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
 
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], file_on_disk_name)
-
 
 @image_bp.route('/thumbnails/<filename>', methods=['GET'])
 def get_thumbnail(filename):
@@ -267,9 +260,23 @@ def get_thumbnail(filename):
     thumbnail_path = os.path.join(thumbnail_dir, filename)
 
     if not os.path.exists(thumbnail_path):
-        return jsonify({'error': 'Thumbnail not found'}), 404
+        raise ResourceNotFoundException(resource_type="Thumbnail not found", resource_id=ErrorCodes.RESOURCE_NOT_FOUND)
 
     return send_from_directory(thumbnail_dir, filename)
+
+@image_bp.route('/', methods=['GET'])
+def get_images_for_typeid():
+    type_id, error1 = get_value_from_request_params(request, 'type_id')
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    if error1 and error2:
+        raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
+    image_type = session.query(ImageType).filter(
+        or_(
+            ImageType.type_id == type_id,
+            ImageType.type_name == type_name
+        )
+    ).first()
+
 
 
 @image_bp.route('/download/<int:image_id>', methods=['GET'])
