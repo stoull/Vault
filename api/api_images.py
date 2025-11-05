@@ -20,7 +20,7 @@ from .exceptions import (
 )
 from .error_codes import ErrorCodes
 
-image_bp = Blueprint('image', __name__)
+image_bp = Blueprint('images', __name__)
 
 # 全局错误处理，对所有blueprint都生效
 register_global_error_handlers(image_bp)
@@ -219,11 +219,31 @@ def upload_multiple_images():
             results.append({'filename': file.filename, 'error': 'Upload failed', 'message': str(e)})
     return ApiResponse.success(data=results, message="Multiple image upload processed")
 
+@image_bp.route('/', methods=['GET'])
+def get_image_by_id():
+    # 分页获取图片列表
+    type_id, error1 = get_value_from_request_params(request, 'type_id')
+    type_name, error2 = get_value_from_request_params(request, 'type_name')
+    keywords = get_value_from_request_params_without_error(request, 'keywords')
+    page = get_value_from_request_params_without_error(request, 'page')
+    page_size = get_value_from_request_params_without_error(request, 'page_size')
+
+    if error1 and error2:
+        raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
+    image_type = session.query(ImageType).filter(
+        or_(
+            ImageType.type_id == type_id,
+            ImageType.type_name == type_name
+        )
+    ).first()
+    result = ImageDBHelper.get_image_list(page=page, page_size=page_size, type_id=image_type.type_id,
+                                          search_keyword=keywords)
+    return ApiResponse.success(data=result)
+
 @image_bp.route('/<path:filepath>', methods=['GET'])
 def get_image(filepath):
     """通过UUID文件名获取图片"""
     # 检查数据库中是否存在且未删除
-
     # 提取文件名
     filename = os.path.basename(filepath)
     file_on_disk_name = filename
@@ -264,10 +284,13 @@ def get_thumbnail(filename):
 
     return send_from_directory(thumbnail_dir, filename)
 
-@image_bp.route('/', methods=['GET'])
-def get_images_for_typeid():
-    type_id, error1 = get_value_from_request_params(request, 'type_id')
-    type_name, error2 = get_value_from_request_params(request, 'type_name')
+def get_images_for_typeid(req):
+    type_id, error1 = get_value_from_request_params(req, 'type_id')
+    type_name, error2 = get_value_from_request_params(req, 'type_name')
+    keywords = get_value_from_request_params_without_error(req, 'keywords')
+    page = get_value_from_request_params_without_error(req, 'page')
+    page_size = get_value_from_request_params_without_error(req, 'page_size')
+
     if error1 and error2:
         raise ValidationException(message="type_id参数没有传", error_code=ErrorCodes.MISSING_PARAMETER)
     image_type = session.query(ImageType).filter(
@@ -276,7 +299,8 @@ def get_images_for_typeid():
             ImageType.type_name == type_name
         )
     ).first()
-
+    result = ImageDBHelper.get_image_list(page=page, page_size=page_size, type_id=image_type.type_id, search_keyword=keywords)
+    return result
 
 
 @image_bp.route('/download/<int:image_id>', methods=['GET'])
