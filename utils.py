@@ -1,6 +1,6 @@
 import hashlib
 import os
-from PIL import Image
+from PIL import Image as PILImage
 
 
 def calculate_partial_md5_flexible(file_path, bytes_to_read=64 * 1024):
@@ -71,7 +71,7 @@ def allowed_file(filename, allowed_extensions):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-
+# 在原始目录下创建缩略图
 def create_thumbnail(image_path, size=(300, 300)):
     """创建缩略图"""
     # 创建缩略图目录
@@ -81,10 +81,41 @@ def create_thumbnail(image_path, size=(300, 300)):
     # 生成缩略图路径
     filename = os.path.basename(image_path)
     thumbnail_path = os.path.join(thumbnail_dir, filename)
+    print(f"Creating thumbnail at: {thumbnail_path}")
 
     # 创建缩略图
-    with Image.open(image_path) as img:
-        img.thumbnail(size, Image.Resampling.LANCZOS)
+    with PILImage.open(image_path) as img:
+        img.thumbnail(size, PILImage.Resampling.LANCZOS)
         img.save(thumbnail_path, optimize=True, quality=85)
 
+    return thumbnail_path
+
+# 指定目标目录创建缩略图
+def create_thumbnail_diff_dir(image_path, thumbnail_dir, size=(300, 300)):
+    """创建缩略图在本目录"""
+    # 创建缩略图目录
+    """
+    thumbnail_dir = os.path.join(os.path.dirname(image_path), 'thumbnails')
+    os.makedirs(thumbnail_dir, exist_ok=True)
+
+    # 生成缩略图路径
+    filename = os.path.basename(image_path)
+    thumbnail_path = os.path.join(thumbnail_dir, filename)
+    """
+
+    """创建缩略图在目标目录"""
+    thumbnail_dir = os.path.join(thumbnail_dir, 'thumbnails')
+    os.makedirs(thumbnail_dir, exist_ok=True)
+    filename = os.path.basename(image_path)
+    thumbnail_path = os.path.join(thumbnail_dir, filename)
+
+    # 创建缩略图
+    with PILImage.open(image_path) as img:
+        img.thumbnail(size, PILImage.Resampling.LANCZOS)
+        try:
+            img.save(thumbnail_path, optimize=True, quality=85)
+            print(f"创建缩略图成功: {thumbnail_path}")
+        except Exception as e:
+            print(f"创建缩略图时出错: {e}")
+            return False
     return thumbnail_path

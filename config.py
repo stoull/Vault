@@ -15,6 +15,9 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 限制上传文件大小为 16MB
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 
+    # 权限配置
+    IMAGE_SERVICE_AUTH_CODE = "HappyImage2024!"
+
     # 图片服务配置
     IMAGE_URL_PREFIX = '/images'
     THUMBNAIL_SIZE = (300, 300)

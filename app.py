@@ -38,18 +38,19 @@ env = Environment(loader=PackageLoader('app', 'templates'))
 auth_manager = AuthManager()
 response_manager = ResponseManager(app)
 app.register_blueprint(api_bp, url_prefix='/api/v1')
-app.register_blueprint(image_bp, url_prefix='/image')
+app.register_blueprint(image_bp, url_prefix='/images')
 app.register_blueprint(smart_clock_bp, url_prefix='/api/smart-clock')
 
+# 应用级全局错误处理，对所有blueprint都生效
 @app.before_request
 def before():
     pass
     # print("This is executed BEFORE each request.")
-
+# 应用级全局错误处理，对所有blueprint都生效
 @app.errorhandler(404)
 def page_not_found(e):
     print(f"app page_not_found: {e}")
-    if request.path.startswith('/api/') or request.path.startswith('/image/'):
+    if request.path.startswith('/api/') or request.path.startswith('/images/'):
         # 针对蓝图URL空间中的异常处理
         response = e.get_response()
         # replace the body with JSON
@@ -64,6 +65,7 @@ def page_not_found(e):
         # can use abort(404) to invoke this method
         return render_template('page_not_found.html'), 404
 
+# 应用级全局错误处理，对所有blueprint都生效
 @app.errorhandler(500)
 def internal_server_error(e):
     print(f"app print internal_server_error {e}")

@@ -33,6 +33,7 @@ def internal_server_error(e):
     # 针对本蓝图URL空间中的500处理
     response = response_manager.json_response({'code': '500', 'message': 'The server encounter a error!'})
     return response
+
 @api_bp.route('/movies/search', methods=['GET'])
 def search_movie():
     params = getRequestParamters(request)
