@@ -12,7 +12,7 @@ def batch_upload_images(folder_path, upload_url):
             try:
                 with open(file_path, 'rb') as f:
                     files = {'file': (file_path.name, f, 'image/jpeg')}
-                    params = {'type_id': 22, 'tags': 'your_tags'}
+                    params = {'type_id': 22, 'tags': 'screenshot'}
                     response = requests.post(upload_url, data=params, files=files)
 
                     print(f"上传 {file_path.name}: {response.status_code}")
@@ -69,8 +69,8 @@ def batch_upload_multiple_images(folder_path, upload_url, batch_size=5):
 
 # 使用示例
 if __name__ == "__main__":
-    batch_upload_images('./to_upload_images', 'http://127.0.0.1:5002/image/upload')
-    # batch_upload_multiple_images('./to_upload_images', 'http://127.0.0.1:5002/image/multiple_upload', 2)
+    batch_upload_images('./to_upload_images', 'http://20.4.2.128:8090//images/upload')
+    # batch_upload_multiple_images('./to_upload_images', 'http://127.0.0.1:5002/images/multiple_upload', 2)
 
 """
 #!/bin/bash

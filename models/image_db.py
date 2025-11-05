@@ -85,7 +85,7 @@ class Image(Base):
         url_str = f"/images/{folder_name}/{self.uuid_filename}"
 
         return {
-            # 'id': self.id,
+            'id': self.id,
             'type_id': self.type_id,
             'tags': self.tags,
             'filename': self.uuid_filename,
