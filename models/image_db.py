@@ -3,10 +3,19 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from sqlalchemy import inspect, func, text
+from sqlalchemy.pool import StaticPool
 
 # 创建数据库引擎
 database_url = "sqlite:///./models/images.db"
-engine = create_engine(database_url, echo=True)
+# engine = create_engine(database_url, echo=True)
+
+# 多线程和多连接支持
+engine = create_engine(
+    database_url,
+    echo=True,
+    connect_args={'check_same_thread': False},
+    poolclass=StaticPool
+)
 
 # 创建Session
 Session = sessionmaker(bind=engine)
