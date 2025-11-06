@@ -25,13 +25,44 @@ app = create_app()
 
 # 配置 跨域资源共享（Cross-origin resource sharing)
 # 仅允许指定前端源，生产环境不要用 '*'
+from flask_cors import CORS
+
+# 为 API 路由配置 跨域访问 规则
 CORS(app,
-     resources={r"/api/*": {"origins": ["http://localhost:3000", "https://ahut.site:8081"]}},
-     supports_credentials=True,              # 如果前端需要带 cookie/token
-     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"],
-     expose_headers=["X-Total-Count"],       # 可选：让前端可读这些自定义响应头
-     max_age=86400)                          # 预检结果缓存 1 天
+     resources={
+         r"/api/*": {
+             "origins": ["http://localhost:3000", "https://ahut.site:8081"],
+             "supports_credentials": True,
+             "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type",
+                 "Authorization",
+                 "X-Request-ID",
+                 "X-Requested-With",
+                 "X-CSRF-Token",
+                 "X-API-Key",
+                 "Accept",
+                 "Origin",
+                 "Cache-Control"],
+             "expose_headers": ["X-Total-Count"],
+             "max_age": 86400
+         },
+         r"/images/*": {
+             "origins": ["http://localhost:3000", "https://ahut.site:8081"],
+             "supports_credentials": True,
+             "methods": ["GET", "OPTIONS"],  # 图片通常只需要 GET
+             "allow_headers": ["Content-Type",
+                 "Authorization",
+                 "X-Request-ID",
+                 "X-Requested-With",
+                 "X-CSRF-Token",
+                 "X-API-Key",
+                 "Accept",
+                 "Origin",
+                 "Cache-Control"],
+             "expose_headers": ["Content-Length", "Content-Type"],
+             "max_age": 86400
+         }
+     })
 
 app.secret_key = b'22895da8a3c21329600df4b32aa7969a1156b05c845e63ba5ad68311a5324ab5'
 env = Environment(loader=PackageLoader('app', 'templates'))
