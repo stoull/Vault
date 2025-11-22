@@ -31,7 +31,7 @@ from flask_cors import CORS
 CORS(app,
      resources={
          r"/api/*": {
-             "origins": ["https://ahut.site:8081","https://ahut.site:8083", "http://ahut.site:8090", "http://ahut.site:9000", "http://ahut.site:8010", "http://ahut.site:9090"],
+             "origins": ["http://localhost:3000", "https://ahut.site:8081","https://ahut.site:8083", "http://ahut.site:8090", "http://ahut.site:9000", "http://ahut.site:8010", "http://ahut.site:9090"],
              "supports_credentials": True,
              "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
              "allow_headers": ["Content-Type",
@@ -47,7 +47,7 @@ CORS(app,
              "max_age": 86400
          },
          r"/images/*": {
-             "origins": ["https://ahut.site:8081","https://ahut.site:8083", "http://ahut.site:8090", "http://ahut.site:9000", "http://ahut.site:8010", "http://ahut.site:9090"],
+             "origins": ["http://localhost:3000", "https://ahut.site:8081","https://ahut.site:8083", "http://ahut.site:8090", "http://ahut.site:9000", "http://ahut.site:8010", "http://ahut.site:9090"],
              "supports_credentials": True,
              "methods": ["GET", "OPTIONS"],  # 图片通常只需要 GET
              "allow_headers": ["Content-Type",
