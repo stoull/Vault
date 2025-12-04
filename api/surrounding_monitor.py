@@ -20,7 +20,14 @@ def readTemAndHumidity():
 
 def abnormalVaulueCheck(humidity, temperature):
     theLastTemp, theLastHumi, unusual_temp_count, unusual_hum_count = readTheLastInfo()
-    if humidity is not None and temperature is not None:
+    if humidity and temperature:
+        
+        if humidity == 0 and temperature == 0:
+            if theLastTemp and theLastHumi:
+                return (theLastTemp, theLastHumi)
+            else:
+                return (0, 0)
+        
         humi = round(humidity, 2)
         temp = round(temperature, 2)
         if theLastTemp is None: theLastTemp = temp
@@ -33,7 +40,7 @@ def abnormalVaulueCheck(humidity, temperature):
         if theLastHumi is not None: dHumi = humi - theLastHumi
         if abs(dTemp) > 3:
             unusual_temp_count+=1
-            if unusual_temp_count > 2:
+            if unusual_temp_count > 5:
                 unusual_temp_count=0
             else:
                 temp = theLastTemp
@@ -41,7 +48,7 @@ def abnormalVaulueCheck(humidity, temperature):
             unusual_temp_count = 0
         if abs(dHumi) > 10:
             unusual_hum_count+=1
-            if unusual_hum_count > 2:
+            if unusual_hum_count > 5:
                 unusual_hum_count=0
             else:
                 humi = theLastHumi
@@ -51,7 +58,10 @@ def abnormalVaulueCheck(humidity, temperature):
         writeTheLastInfo((temp, humi, unusual_temp_count, unusual_hum_count))
         return result
     else:
-        return (0, 0)
+        if theLastTemp and theLastHumi:
+            return (theLastTemp, theLastHumi)
+        else:
+            return (0, 0)
 
 TheLastInfoFilePath = "/home/pi/Documents/PythonProjects/Vault/api/TheLastInfo.json"
 def readTheLastInfo():
