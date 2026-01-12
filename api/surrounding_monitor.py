@@ -187,7 +187,7 @@ def insertARecord(params):
     cur.close()
 
 def postArecord(params):
-    url = "https://ahut.site:8080/api/smart-clock/surroundings/record"
+    url = "https://ahut.site:8000/smart-clock/home_climate/record"
     payload = {"record": params}
     try:
         response = requests.post(url, json=payload, timeout=10)
