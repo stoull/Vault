@@ -13,7 +13,7 @@ DB_FILE = "/home/pi/Documents/PythonProjects/Vault/api/surroundings.db"
 # 心知天气 https://www.seniverse.com
 # WEATHER_URL = 'https://api.seniverse.com/v3/weather/now.json?key=S4zs06GXMojuzjjUH&location=Shenzhen&language=zh-Hans&unit=c'
 # open weather
-WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?lat=22.560780204311204&lon=113.87890358356606&appid=20c7b818bbb2f911cda86ce2798a91b0&lang=zh'
+WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?lat=22.63404&lon=113.81842&appid=20c7b818bbb2f911cda86ce2798a91b0&lang=zh'
 LOCATION = 'HOME'   # 记录的位置信息，如卧室，办公室，厨房等
 # LOCATION = 'OFFICE'   # 记录的位置信息，如卧室，办公室，厨房等
 
@@ -22,7 +22,7 @@ MQTT_PORT = 1883
 MQTT_USERNAME = "hut"
 MQTT_PASSWORD = "mqtt_hut_mos_8"
 MQTT_TOPIC = "sensor/dht22/1/data"
-MQTT_TOPIC_DEVICE_INFO = "device/system/2/device_info"
+MQTT_TOPIC_DEVICE_INFO = "device/system/1/device_info"
 
 # 时区设置（根据实际情况调整）
 TIMEZONE_OFFSET = timedelta(hours=8)  # 例如：东八区（UTC+8）
